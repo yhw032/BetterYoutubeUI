@@ -1,0 +1,160 @@
+/*
+#voice-search-button {
+    display: none !important;
+}
+*/
+#comments {
+    min-height: 360px;
+    height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--ytd-margin-6x) - var(--ytd-watch-flexy-space-below-player));
+    max-height: 700px;
+
+    overflow-y:scroll;
+    border: 1px solid var(--yt-spec-10-percent-layer);
+    border-radius: 12px;
+    padding: 0px 15px;
+
+}
+
+
+#byui-comment-button path {
+    transform: translateX(5px) translateY(6px);
+    -webkit-transform: translateX(5px) translateY(6px);
+    -ms-transform: translateX(5px) translateY(6px);
+}
+
+/*전체화면 댓글창*/
+.byui-fullscreen-comment {
+    border: none;
+    border-radius: 0px !important;
+    background-color: rgba(0,0,0,0.7);
+    min-height: 100% !important;
+    min-width: 20% !important;
+    width: 20%; 
+    height:100%;
+    position: relative;
+    z-index: 12;
+    float:right;
+}
+
+.byui-fullscreen-comment-disable {
+    filter: brightness(0.5);
+    cursor: default !important;
+}
+
+/*댓글 헤더 레이아웃 변경*/
+.byui-fullscreen-comment ytd-comments-header-renderer {
+    margin-bottom: 0;
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title{
+    display: block;
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title span {
+    color: rgb(245,245,245);
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title #leading-section{
+    margin-bottom: 15px;
+}
+
+/*고정 댓글*/
+.byui-fullscreen-comment .ytd-pinned-comment-badge-renderer {
+    color: rgb(200,200,200) !important;
+}
+
+/*댓글 작성자*/
+.byui-fullscreen-comment #author-text span {
+    color: rgb(245,245,245);
+}
+
+/*댓글 내용*/
+.byui-fullscreen-comment yt-attributed-string, .byui-fullscreen-comment yt-attributed-string *{
+    color: rgb(245,245,245) !important;
+}
+
+/*댓글 작성 시간*/
+.byui-fullscreen-comment #published-time-text a{
+    color: rgb(200,200,200) !important;
+}
+
+/*댓글 내 링크*/
+.byui-fullscreen-comment .yt-core-attributed-string__link {
+    color: rgb(200,200,255) !important;
+}
+
+/* 댓글 창 내 아이콘 하얗게 */
+.byui-fullscreen-comment svg {
+    filter: brightness(100);
+}
+
+/* 좋아요/싫어요 아이콘 하얗게 */
+.byui-fullscreen-comment #vote-count-middle {
+    filter: brightness(100);
+}
+
+/*정렬 기준*/
+.byui-fullscreen-comment #label #icon-label {
+    color:rgb(245,245,245);
+}
+
+/*자세히보기/간략히*/
+.byui-fullscreen-comment #more span, .byui-fullscreen-comment #less span {
+    color:rgb(180,180,180);
+}
+
+/*답글 작성 차단*/
+.byui-fullscreen-comment #simple-box, .byui-fullscreen-comment #reply-button-end {
+    display: none;
+}
+
+/*답글 더보기*/
+.byui-fullscreen-comment #more-replies span, .byui-fullscreen-comment #less-replies span, .byui-fullscreen-comment .ytd-continuation-item-renderer span {
+    color:rgb(210,210,255) !important;
+}
+
+.byui-fullscreen-comment #more-replies button:hover, .byui-fullscreen-comment #less-replies button:hover, .byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
+    background-color: rgba(85, 108, 167, 0.9);
+}
+
+/* 댓글 번역하기 */
+.byui-fullscreen-comment .translate-button * {
+    color: rgb(140,140,140) !important;
+}
+
+/*영상 좌측 정렬*/
+.byui-align-video-left {
+    left:0px !important;
+}
+
+.byui-fullscreen-live-chat {
+    border: none;
+    border-radius: 0px !important;
+    min-height: 100% !important;
+    min-width: 20% !important;
+    width: 20%; 
+    height:100%;
+    position: relative;
+    z-index: 12;
+    float:right;
+}
+
+/*
+.short-video-container #progress-bar-line * {
+    height: 5px !important;
+    cursor: pointer;
+
+    -webkit-transition: height .3s;
+    -moz-transition: height .3s;
+    -o-transition: height .3s;
+    transition: height .3s;
+}
+
+.short-video-container #progress-bar-line:hover {
+    height: 8px !important;
+}
+
+.progress-bar-background .ytd-progress-bar-line, .progress-bar-played .ytd-progress-bar-line {
+    height: 20px !important;
+}
+*/
