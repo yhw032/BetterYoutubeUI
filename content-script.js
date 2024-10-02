@@ -1,4 +1,4 @@
-const DEBUG_MODE = 0;
+const DEBUG_MODE = 1;
 showDebugLog("Starting 000");
 
 const callback = (mutationsList, observer) => {
@@ -61,9 +61,9 @@ const callback = (mutationsList, observer) => {
                 document.getElementById('byui-comment-button').addEventListener('click', function(){
                     showDebugLog("Click Check 005");
 
-                    if(document.querySelectorAll(".ytp-live-badge[disabled='true']").length == 0){  //라이브 영상
+                    if(document.querySelectorAll(".ytp-live-badge[disabled]").length != 0){  //라이브 영상
+                        
                         const liveChatTag = document.getElementById('chat-container');
-
                         if(!liveChatTag.classList.contains("byui-fullscreen-live-chat")){
                             liveChatTag.classList.add("byui-fullscreen-live-chat");
                             document.getElementById('movie_player').appendChild(liveChatTag);
@@ -72,12 +72,12 @@ const callback = (mutationsList, observer) => {
                             document.getElementById('secondary-inner').appendChild(liveChatTag);
                         }
                     } else {        //일반 영상 --------------------------------------------------------------------
-
+                        
                         const commentsTag = document.getElementById('comments');
 
                         if(!commentsTag.classList.contains("byui-fullscreen-comment")){
                             showDebugLog("Change Comment Style 006");
-
+                            
                             let scrollPos = commentsTag.scrollTop;
                             commentsTag.classList.add("byui-fullscreen-comment");
                             document.getElementById('movie_player').appendChild(commentsTag);
@@ -146,13 +146,5 @@ function showDebugLog(msg) {
     if(DEBUG_MODE == 1) {
         msg = "[BetterYoutubeUI] " + msg;
         console.log(msg);
-    }
-}
-
-function changeLiveChatStyle(i){
-    if(i == true){
-
-    } else {
-
     }
 }
