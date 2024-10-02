@@ -110,7 +110,7 @@ const callback = (mutationsList, observer) => {
                     fullScreenCommentBtn.remove();
                 }
                 
-                if(document.querySelectorAll(".ytp-live-badge[disabled='true']").length == 0){    //라이브 영상 ---------
+                if(document.querySelectorAll(".ytp-live-badge[disabled]").length != 0){    //라이브 영상 ---------
                     const liveChatTag = document.getElementById('chat-container');
                     const videoTag = document.querySelector("#player-container[role='complementary']");
 
