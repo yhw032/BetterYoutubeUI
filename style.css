@@ -4,10 +4,13 @@
 }
 */
 #comments {
+    /*
     min-height: 360px;
     height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--ytd-margin-6x) - var(--ytd-watch-flexy-space-below-player));
     max-height: 700px;
-
+    */
+    min-height: 0;
+    max-height: var(--ytd-watch-flexy-panel-max-height);
     overflow-y:scroll;
     border: 1px solid var(--yt-spec-10-percent-layer);
     border-radius: 12px;
@@ -138,23 +141,3 @@
     z-index: 12;
     float:right;
 }
-
-/*
-.short-video-container #progress-bar-line * {
-    height: 5px !important;
-    cursor: pointer;
-
-    -webkit-transition: height .3s;
-    -moz-transition: height .3s;
-    -o-transition: height .3s;
-    transition: height .3s;
-}
-
-.short-video-container #progress-bar-line:hover {
-    height: 8px !important;
-}
-
-.progress-bar-background .ytd-progress-bar-line, .progress-bar-played .ytd-progress-bar-line {
-    height: 20px !important;
-}
-*/

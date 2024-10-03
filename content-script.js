@@ -1,9 +1,9 @@
-const DEBUG_MODE = 1;
+const DEBUG_MODE = 0;
 showDebugLog("Starting 000");
 
 const callback = (mutationsList, observer) => {
     for (const mutation of mutationsList) {
-        if(window.location.href.indexOf("/shorts/") != -1){
+        if(window.location.href.indexOf("/shorts/") != -1 || window.innerWidth < 1000){
             showDebugLog("Skipping 001");
             continue;
         }
@@ -17,9 +17,9 @@ const callback = (mutationsList, observer) => {
                 const belowTag = document.querySelector('ytd-watch-flexy #below');
 
                 if(secondTag.querySelector('#comments') == null && document.querySelector('#movie_player #comments') == null){
-                showDebugLog("Swapping 002");
-                secondTag.appendChild(commentsTag);
-                belowTag.appendChild(relatedTag);
+                    showDebugLog("Swapping 002");
+                    secondTag.appendChild(commentsTag);
+                    belowTag.appendChild(relatedTag);
                 }
             }
         }
@@ -148,3 +148,21 @@ function showDebugLog(msg) {
         console.log(msg);
     }
 }
+
+
+window.addEventListener('resize', () => {
+    const windowWidth = window.innerWidth;
+    const commentsElement = document.getElementById('comments');
+    const relatedElement = document.getElementById('related');
+    const belowElement = document.querySelector('ytd-watch-flexy #below');
+    const secondElement = document.getElementById('secondary-inner');
+
+
+    if (windowWidth < 1000 && commentsElement) {
+        belowElement.appendChild(commentsElement);
+    } else {
+        secondElement.appendChild(commentsElement);
+        belowElement.appendChild(relatedElement);
+    }
+    
+});
