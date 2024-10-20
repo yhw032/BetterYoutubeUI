@@ -1,13 +1,13 @@
 const DEBUG_MODE = 0;
 showDebugLog("Starting 000");
 
-const callback = (mutationsList, observer) => {
+const childListCallback = (mutationsList, observer) => {
     for (const mutation of mutationsList) {
         if(window.location.href.indexOf("/shorts/") != -1 || window.innerWidth < 1000){
             showDebugLog("Skipping 001");
             continue;
         }
-        
+
         if (mutation.type === 'childList') {
             const commentsTag = document.getElementById('comments');
             const relatedTag = document.getElementById('related');
@@ -33,10 +33,20 @@ const callback = (mutationsList, observer) => {
                 belowTag.appendChild(fragment.lastChild);
 
                 showDebugLog("Swapping 002");
+                observer.disconnect();
             }
         }
-        
+    }
+}
 
+
+const attributesCallback = (mutationsList, observer) => {
+    for (const mutation of mutationsList) {
+        if(window.location.href.indexOf("/shorts/") != -1){
+            showDebugLog("Skipping 001");
+            continue;
+        }
+        
         if (mutation.type === 'attributes') {
             const fullScreenTag = document.querySelector('[fullscreen]');
             const fullScreenVideo = document.getElementsByClassName("html5-main-video")[0];
@@ -150,9 +160,14 @@ const callback = (mutationsList, observer) => {
 
 
 const targetNode = document.body;
-const observer = new MutationObserver(callback);
-const config = { childList: true, attributes: true };
-observer.observe(targetNode, config);
+
+const childListObserver = new MutationObserver(childListCallback);
+const childListConfig = { childList: true };
+childListObserver.observe(targetNode, childListConfig);
+
+const attributesObserver = new MutationObserver(attributesCallback);
+const attributesConfig = { attributes: true };
+attributesObserver.observe(targetNode, attributesConfig);
 
 
 function showDebugLog(msg) {
