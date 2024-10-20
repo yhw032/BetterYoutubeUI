@@ -7,23 +7,36 @@ const callback = (mutationsList, observer) => {
             showDebugLog("Skipping 001");
             continue;
         }
-
+        
         if (mutation.type === 'childList') {
             const commentsTag = document.getElementById('comments');
             const relatedTag = document.getElementById('related');
-
+            const secondTag = document.getElementById('secondary-inner');
+            const belowTag = document.querySelector('ytd-watch-flexy #below');
+        
             if (commentsTag && relatedTag) {
-                const secondTag = document.getElementById('secondary-inner');
-                const belowTag = document.querySelector('ytd-watch-flexy #below');
-
-                if(secondTag.querySelector('#comments') == null && document.querySelector('#movie_player #comments') == null){
-                    showDebugLog("Swapping 002");
-                    secondTag.appendChild(commentsTag);
-                    belowTag.appendChild(relatedTag);
+                const commentsParent = commentsTag.parentNode;
+                const relatedParent = relatedTag.parentNode;
+        
+                if (commentsParent === secondTag && relatedParent === belowTag) {
+                    return; 
                 }
+        
+
+                const fragment = document.createDocumentFragment();
+
+                fragment.appendChild(commentsTag);
+                fragment.appendChild(relatedTag);
+        
+                // 새로운 위치에 삽입
+                secondTag.appendChild(fragment.firstChild);
+                belowTag.appendChild(fragment.lastChild);
+
+                showDebugLog("Swapping 002");
             }
         }
         
+
         if (mutation.type === 'attributes') {
             const fullScreenTag = document.querySelector('[fullscreen]');
             const fullScreenVideo = document.getElementsByClassName("html5-main-video")[0];
@@ -149,20 +162,30 @@ function showDebugLog(msg) {
     }
 }
 
-
-window.addEventListener('resize', () => {
+const optimizedResizeHandler = debounce(() => {
     const windowWidth = window.innerWidth;
     const commentsElement = document.getElementById('comments');
     const relatedElement = document.getElementById('related');
     const belowElement = document.querySelector('ytd-watch-flexy #below');
     const secondElement = document.getElementById('secondary-inner');
 
-
     if (windowWidth < 1000 && commentsElement) {
+        belowElement.appendChild(relatedElement);
         belowElement.appendChild(commentsElement);
     } else {
         secondElement.appendChild(commentsElement);
         belowElement.appendChild(relatedElement);
     }
-    
-});
+}, 200);
+
+
+function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        const context = this; 
+        clearTimeout(timeout); 
+        timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+}
+
+window.addEventListener('resize', optimizedResizeHandler);

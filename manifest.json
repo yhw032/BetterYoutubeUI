@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "__MSG_extName__",
-    "version": "1.2.3",
+    "version": "1.2.4",
 
     "description": "유튜브 댓글 위치와 관련 항목의 위치를 변경합니다.",
     "icons": {
