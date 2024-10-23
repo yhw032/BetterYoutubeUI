@@ -1,4 +1,4 @@
-const DEBUG_MODE = 1;
+const DEBUG_MODE = 0;
 showDebugLog("Starting Content Script");
 
 const childListCallback = (mutationsList, observer) => {

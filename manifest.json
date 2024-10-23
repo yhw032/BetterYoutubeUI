@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "__MSG_extName__",
-    "version": "1.2.6",
+    "version": "1.2.7",
 
     "description": "유튜브 댓글 위치와 관련 항목의 위치를 변경합니다.",
     "icons": {
@@ -14,8 +14,7 @@
         "default_icon": {
             "16": "icons/icons16.png"
         },
-        "default_title": "BetterYoutubeUI",
-        "default_popup": "popup.html"
+        "default_title": "BetterYoutubeUI"
     },
 
     "default_locale": "ko",
@@ -37,10 +36,6 @@
     "permissions": [
         "tabs", "webNavigation"
     ],
-
-    "background": {
-        "service_worker": "background.js"
-    },
 
     "content_security_policy": {
         "extension_pages": "script-src 'self'; object-src 'self';"
