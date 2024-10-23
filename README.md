@@ -1,6 +1,7 @@
 # 🐋네이버 웨일 확장프로그램 '개선된 유튜브 UI'
 
-![main-image](.\docs\images\img1.png)
+![main-image](https://github.com/yhw032/BYUI/blob/master/docs/images/img1.png?raw=true)
+
 
 현대인들은 유튜브 없이는 살아갈 수 없을 정도로 유튜브의 점유율과 이에 대한 의존성은 나날이 높아지고 있습니다.\
 하지만 PC환경에서는 유튜브를 사용하다보면 아주 끔찍한 문제에 당면하게 됩니다.
@@ -35,7 +36,7 @@
 <span style="font-size: 150%;">[웨일 스토어 링크🔗](https://store.whale.naver.com/detail/dognllhkkhmkgpmhpfggjjcbcnhhnloi)</span>
 
 ## 이미지
-![image2](.\docs\images\img2.png)
-![image3](.\docs\images\img3.png)
-![image4](.\docs\images\img4.png)
-![image5](.\docs\images\img5.png)
+![image2](https://github.com/yhw032/BYUI/blob/master/docs/images/img2.png?raw=true)
+![image3](https://github.com/yhw032/BYUI/blob/master/docs/images/img3.png?raw=true)
+![image4](https://github.com/yhw032/BYUI/blob/master/docs/images/img4.png?raw=true)
+![image5](https://github.com/yhw032/BYUI/blob/master/docs/images/img5.png?raw=true)
