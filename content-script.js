@@ -47,7 +47,7 @@ const attributesCallback = (mutationsList, observer) => {
             const fullScreenTag = document.querySelector('[fullscreen]');
             const fullScreenVideo = document.getElementsByClassName("html5-main-video")[0];
             const commentsTag = document.getElementById('comments');
-            let scrollPosBefore = commentsTag.scrollTop;
+            let scrollPosBefore = commentsTag ? commentsTag.scrollTop : null;
 
             if (fullScreenTag) {
                 showDebugLog("FullScreen: " + mutation.attributes);
