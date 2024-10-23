@@ -136,8 +136,13 @@ function toggleLiveChat() {
     }
 }
 
-function toggleComments(fullScreenVideo, commentsTag, scrollPos) {
+function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
+    let commentsTag = commentsTagP;
 
+    if (commentsTag == null || commentsTag == undefined) {
+        commentsTag = document.getElementById('comments');
+        return;
+    }
 
     if (!commentsTag.classList.contains("byui-fullscreen-comment")) {
         showDebugLog("Change Comment Style");
@@ -175,7 +180,13 @@ function resetLiveChat() {
     document.getElementById('player-container-inner').appendChild(videoTag);
 }
 
-function resetComments(commentsTag, scrollPos) {
+function resetComments(commentsTagP, scrollPos) {
+    let commentsTag = commentsTagP;
+
+    if (commentsTag == null || commentsTag == undefined) {
+        commentsTag = document.getElementById('comments');
+        return;
+    }
 
     if (commentsTag && commentsTag.classList.contains("byui-fullscreen-comment")) {
         commentsTag.classList.remove("byui-fullscreen-comment");
