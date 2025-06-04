@@ -137,10 +137,9 @@ function toggleLiveChat() {
 }
 
 function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
-    let commentsTag = commentsTagP;
+    let commentsTag = commentsTagP || document.getElementById('comments');
 
-    if (commentsTag == null || commentsTag == undefined) {
-        commentsTag = document.getElementById('comments');
+    if (!commentsTag) {
         return;
     }
 
@@ -168,7 +167,7 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
 
 function getCurrentScrollPos() {
     const commentsTag = document.getElementById('comments');
-    return commentsTag.scrollTop;
+    return commentsTag ? commentsTag.scrollTop : 0;
 }
 
 function resetLiveChat() {
@@ -181,10 +180,9 @@ function resetLiveChat() {
 }
 
 function resetComments(commentsTagP, scrollPos) {
-    let commentsTag = commentsTagP;
+    let commentsTag = commentsTagP || document.getElementById('comments');
 
-    if (commentsTag == null || commentsTag == undefined) {
-        commentsTag = document.getElementById('comments');
+    if (!commentsTag) {
         return;
     }
 
