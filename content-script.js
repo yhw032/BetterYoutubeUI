@@ -1,32 +1,59 @@
 const DEBUG_MODE = 0;
 showDebugLog("Starting Content Script");
 
+function adjustLayout() {
+    const windowWidth = window.innerWidth;
+    const commentsElement = document.getElementById('comments');
+    const relatedElement = document.getElementById('related');
+    const belowElement = document.querySelector('ytd-watch-flexy #below');
+    const secondElement = document.getElementById('secondary-inner');
+
+    if (!commentsElement || !relatedElement || !belowElement || !secondElement) {
+        showDebugLog("Elements not ready yet");
+        return false; // Elements not ready
+    }
+
+    // Move related videos to below section, regardless of window size.
+    if (!belowElement.contains(relatedElement)) {
+        belowElement.appendChild(relatedElement);
+        showDebugLog("Moved Related to below view");
+    }
+
+    if (windowWidth < 1000) {
+        // Small screen: comments go below video.
+        if (!belowElement.contains(commentsElement)) {
+            belowElement.appendChild(commentsElement);
+            showDebugLog("Moved Comments to below view");
+        }
+    } else {
+        // Large screen: comments go to the side.
+        if (!secondElement.contains(commentsElement)) {
+            secondElement.prepend(commentsElement);
+            showDebugLog("Moved Comments to secondary view");
+        }
+    }
+    
+    showDebugLog("Layout adjusted");
+    return true; // Elements were ready and layout adjusted
+}
+
 function run() {
-    if (window.location.href.includes('/shorts/') || window.innerWidth < 1000) {
-        showDebugLog("Skipping, either on shorts or window is too small");
+    if (window.location.href.includes('/shorts/')) {
+        showDebugLog("Skipping, on shorts");
         return;
     }
 
     const interval = setInterval(() => {
-        const commentsTag = document.getElementById('comments');
-        const relatedTag = document.getElementById('related');
-        const secondTag = document.getElementById('secondary-inner');
-        const belowTag = document.querySelector('ytd-watch-flexy #below');
-
-        if (commentsTag && relatedTag && secondTag && belowTag) {
-            if (secondTag.contains(commentsTag)) {
-                // Already in the correct position
-                clearInterval(interval);
-                return;
-            }
-            
-            secondTag.prepend(commentsTag);
-            showDebugLog("Moved Comments to secondary view");
+        if (adjustLayout()) {
+            showDebugLog("Initial layout setup finished.");
             clearInterval(interval);
         }
     }, 500);
 
-    setTimeout(() => clearInterval(interval), 10000); // Stop trying after 10 seconds
+    setTimeout(() => {
+        clearInterval(interval); // Stop trying after 10 seconds
+        showDebugLog("Stopped trying to adjust layout after 10 seconds.");
+    }, 10000);
 }
 
 
@@ -37,25 +64,7 @@ function showDebugLog(msg) {
     }
 }
 
-const optimizedResizeHandler = debounce(() => {
-    const windowWidth = window.innerWidth;
-    const commentsElement = document.getElementById('comments');
-    const relatedElement = document.getElementById('related');
-    const belowElement = document.querySelector('ytd-watch-flexy #below');
-    const secondElement = document.getElementById('secondary-inner');
-
-    if (!commentsElement || !relatedElement || !belowElement || !secondElement) return;
-
-    if (windowWidth < 1000) {
-        if (!belowElement.contains(commentsElement)) {
-            belowElement.appendChild(commentsElement);
-        }
-    } else {
-        if (!secondElement.contains(commentsElement)) {
-            secondElement.prepend(commentsElement);
-        }
-    }
-}, 200);
+const optimizedResizeHandler = debounce(adjustLayout, 200);
 
 function debounce(func, wait) {
     let timeout;
@@ -73,5 +82,3 @@ document.addEventListener('yt-navigate-finish', run);
 run();
 
 window.addEventListener('resize', optimizedResizeHandler);
-
-
