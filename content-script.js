@@ -3,10 +3,10 @@ showDebugLog("Starting Content Script");
 
 const childListCallback = (mutationsList, observer) => {
     for (const mutation of mutationsList) {
-        if (window.location.href.indexOf("/shorts/") != -1 || window.innerWidth < 1000) {
-            showDebugLog("Skipping");
-            continue;
-        }
+        // if (window.location.href.indexOf("/shorts/") != -1 || window.innerWidth < 1000) {
+        //     showDebugLog("Skipping");
+        //     continue;
+        // }
 
         if (mutation.type === 'childList') {
             const commentsTag = document.getElementById('comments');
