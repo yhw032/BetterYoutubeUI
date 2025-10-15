@@ -1,51 +1,34 @@
 const DEBUG_MODE = 0;
 showDebugLog("Starting Content Script");
 
-const childListCallback = (mutationsList, observer) => {
-    for (const mutation of mutationsList) {
-        // if (window.location.href.indexOf("/shorts/") != -1 || window.innerWidth < 1000) {
-        //     showDebugLog("Skipping");
-        //     continue;
-        // }
-
-        if (mutation.type === 'childList') {
-            const commentsTag = document.getElementById('comments');
-            const relatedTag = document.getElementById('related');
-            const secondTag = document.getElementById('secondary-inner');
-            const belowTag = document.querySelector('ytd-watch-flexy #below');
-
-            if (commentsTag && relatedTag) {
-                const commentsParent = commentsTag.parentNode;
-                const relatedParent = relatedTag.parentNode;
-
-                if (commentsParent === secondTag && relatedParent === belowTag) {
-                    return;
-                }
-
-                const fragment = document.createDocumentFragment();
-                fragment.appendChild(commentsTag);
-                fragment.appendChild(relatedTag);
-
-                secondTag.appendChild(fragment.firstChild);
-                belowTag.appendChild(fragment.lastChild);
-
-                showDebugLog("Swapping Comments/Related Position");
-                observer.disconnect();
-            }
-        }
+function run() {
+    if (window.location.href.includes('/shorts/') || window.innerWidth < 1000) {
+        showDebugLog("Skipping, either on shorts or window is too small");
+        return;
     }
-};
 
+    const interval = setInterval(() => {
+        const commentsTag = document.getElementById('comments');
+        const relatedTag = document.getElementById('related');
+        const secondTag = document.getElementById('secondary-inner');
+        const belowTag = document.querySelector('ytd-watch-flexy #below');
 
-const targetNode = document.body;
+        if (commentsTag && relatedTag && secondTag && belowTag) {
+            if (secondTag.contains(commentsTag)) {
+                // Already in the correct position
+                clearInterval(interval);
+                return;
+            }
+            
+            secondTag.prepend(commentsTag);
+            showDebugLog("Moved Comments to secondary view");
+            clearInterval(interval);
+        }
+    }, 500);
 
-const childListObserver = new MutationObserver(childListCallback);
-const childListConfig = { childList: true };
-childListObserver.observe(targetNode, childListConfig);
+    setTimeout(() => clearInterval(interval), 10000); // Stop trying after 10 seconds
+}
 
-// const attributesObserver = new MutationObserver(attributesCallback);
-// const attributesConfig = { attributes: true };
-// attributesObserver.observe(targetNode, attributesConfig);
 
 function showDebugLog(msg) {
     if (DEBUG_MODE == 1) {
@@ -61,12 +44,16 @@ const optimizedResizeHandler = debounce(() => {
     const belowElement = document.querySelector('ytd-watch-flexy #below');
     const secondElement = document.getElementById('secondary-inner');
 
-    if (windowWidth < 1000 && commentsElement) {
-        belowElement.appendChild(relatedElement);
-        belowElement.appendChild(commentsElement);
+    if (!commentsElement || !relatedElement || !belowElement || !secondElement) return;
+
+    if (windowWidth < 1000) {
+        if (!belowElement.contains(commentsElement)) {
+            belowElement.appendChild(commentsElement);
+        }
     } else {
-        secondElement.appendChild(commentsElement);
-        belowElement.appendChild(relatedElement);
+        if (!secondElement.contains(commentsElement)) {
+            secondElement.prepend(commentsElement);
+        }
     }
 }, 200);
 
@@ -79,5 +66,12 @@ function debounce(func, wait) {
     };
 }
 
+// Listen for YouTube's specific navigation event
+document.addEventListener('yt-navigate-finish', run);
+
+// Run on initial load
+run();
+
 window.addEventListener('resize', optimizedResizeHandler);
+
 
