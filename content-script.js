@@ -43,9 +43,9 @@ const childListObserver = new MutationObserver(childListCallback);
 const childListConfig = { childList: true };
 childListObserver.observe(targetNode, childListConfig);
 
-const attributesObserver = new MutationObserver(attributesCallback);
-const attributesConfig = { attributes: true };
-attributesObserver.observe(targetNode, attributesConfig);
+// const attributesObserver = new MutationObserver(attributesCallback);
+// const attributesConfig = { attributes: true };
+// attributesObserver.observe(targetNode, attributesConfig);
 
 function showDebugLog(msg) {
     if (DEBUG_MODE == 1) {
