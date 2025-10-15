@@ -29,14 +29,9 @@
 `기본 UI/UX 변경`\
 영상 아래에 표시되는 댓글과 영상 사이드에 표시되는 관련 항목의 위치를 변경하여 더욱 더 나은 사용자 경험을 제공합니다.
 
-`전체화면에서 댓글/라이브 채팅 보기`\
-전체화면에서도 댓글과 라이브 채팅을 볼 수 있습니다. 전체화면에서는 댓글/채팅 입력이 불가능합니다.
-
 ## 설치
 <span style="font-size: 150%;">[웨일 스토어 링크🔗](https://store.whale.naver.com/detail/dognllhkkhmkgpmhpfggjjcbcnhhnloi)</span>
 
 ## 이미지
 ![image2](https://github.com/yhw032/BYUI/blob/master/docs/images/img2.png?raw=true)
 ![image3](https://github.com/yhw032/BYUI/blob/master/docs/images/img3.png?raw=true)
-![image4](https://github.com/yhw032/BYUI/blob/master/docs/images/img4.png?raw=true)
-![image5](https://github.com/yhw032/BYUI/blob/master/docs/images/img5.png?raw=true)
