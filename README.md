@@ -38,5 +38,3 @@
 ## 이미지
 ![image2](https://github.com/yhw032/BYUI/blob/master/docs/images/img2.png?raw=true)
 ![image3](https://github.com/yhw032/BYUI/blob/master/docs/images/img3.png?raw=true)
-![image4](https://github.com/yhw032/BYUI/blob/master/docs/images/img4.png?raw=true)
-![image5](https://github.com/yhw032/BYUI/blob/master/docs/images/img5.png?raw=true)
