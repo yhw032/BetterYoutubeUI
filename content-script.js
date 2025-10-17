@@ -28,7 +28,7 @@ function adjustLayout() {
     } else {
         // Large screen: comments go to the side.
         if (!secondElement.contains(commentsElement)) {
-            secondElement.prepend(commentsElement);
+            secondElement.appendChild(commentsElement);
             showDebugLog("Moved Comments to secondary view");
         }
     }
