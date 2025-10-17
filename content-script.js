@@ -82,3 +82,25 @@ document.addEventListener('yt-navigate-finish', run);
 run();
 
 window.addEventListener('resize', optimizedResizeHandler);
+
+// Function to toggle the grid view class
+function toggleGridClass(isEnabled) {
+  if (isEnabled) {
+    document.body.classList.add('byui-related-view');
+  } else {
+    document.body.classList.remove('byui-related-view');
+  }
+}
+
+// Get initial state from storage
+chrome.storage.sync.get(['isGridEnabled'], (result) => {
+  const isEnabled = result.isGridEnabled === undefined ? true : result.isGridEnabled;
+  toggleGridClass(isEnabled);
+});
+
+// Listen for messages from the popup
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'toggleGrid') {
+    toggleGridClass(request.isGridEnabled);
+  }
+});
