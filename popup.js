@@ -24,3 +24,17 @@ toggle.addEventListener('change', (event) => {
     }
   });
 });
+
+const fullscreenCommentsToggle = document.getElementById('toggleFullscreenComments');
+
+// Get the current state from storage and set the toggle
+chrome.storage.sync.get(['isFullscreenCommentsEnabled'], (result) => {
+  fullscreenCommentsToggle.checked = result.isFullscreenCommentsEnabled === undefined ? false : result.isFullscreenCommentsEnabled;
+});
+
+fullscreenCommentsToggle.addEventListener('change', (event) => {
+  const isFullscreenCommentsEnabled = event.target.checked;
+
+  // Save the new state
+  chrome.storage.sync.set({ isFullscreenCommentsEnabled });
+});

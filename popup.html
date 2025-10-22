@@ -5,12 +5,22 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+  <h3 class="title"><img src="./icons/icons48.png" alt="BetterYoutubeUI Icon" class="icon" height="24">BetterYoutubeUI Settings</h3>
   <div class="container">
-    <label class="toggle-switch">
-      <input type="checkbox" id="toggleGrid">
-      <span class="slider"></span>
-    </label>
-    <span class="toggle-label">Enable Grid View for Related Videos</span>
+    <div class="item">
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleGrid">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">Enable Grid View for Related Videos</span>
+    </div>
+    <div class="item" title="Use with caution. This feature may not work as expected.">
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleFullscreenComments">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">Enable Legacy Fullscreen Comments Button</span>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>

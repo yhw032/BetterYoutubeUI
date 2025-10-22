@@ -1,6 +1,33 @@
 const DEBUG_MODE = 0;
 showDebugLog("Starting Content Script");
 
+const disableFullscreenScroll = () => {
+    const player = document.querySelector('.html5-video-player');
+    if (player) {
+        if (player.classList.contains('ytp-grid-scrollable')) {
+            player.classList.remove('ytp-grid-scrollable');
+            showDebugLog("Removed ytp-grid-scrollable from player");
+        }
+        
+        player.style.setProperty('--ytp-grid-scroll-percentage', '0', 'important');
+        player.style.setProperty('--ytp-grid-peek-height', '0px', 'important');
+    }
+    
+    const gridElements = document.querySelectorAll('.ytp-fullscreen-grid, .ytp-fullscreen-grid-main-content, .ytp-fullscreen-grid-stills-container, .ytp-modern-videowall-still');
+    gridElements.forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.remove();
+    });
+
+    const panels = document.querySelectorAll('.ytp-fullerscreen-edu-panel, .ytp-cards-teaser, div[class*="fullerscreen"]');
+    panels.forEach(panel => {
+        panel.style.display = 'none';
+        panel.style.visibility = 'hidden';
+        panel.remove();
+    });
+}
+
 const attributesCallback = (mutationsList, observer) => {
     for (const mutation of mutationsList) {
         if (mutation.attributeName !== 'fullscreen') continue;
@@ -11,36 +38,11 @@ const attributesCallback = (mutationsList, observer) => {
         let scrollPosBefore = commentsTag ? commentsTag.scrollTop : 0;
 
         if (isFullscreen) {
+            if (!isFullscreenCommentsFeatureEnabled) return;
             showDebugLog("Entering Fullscreen");
 
             const fullScreenCommentBtn = createFullScreenCommentButton();
             const rightControlTag = document.querySelector(".ytp-right-controls-left");
-            
-            const player = document.querySelector('.html5-video-player');
-            if (player) {
-                if (player.classList.contains('ytp-grid-scrollable')) {
-                    player.classList.remove('ytp-grid-scrollable');
-                    showDebugLog("Removed ytp-grid-scrollable from player");
-                }
-                
-                player.style.setProperty('--ytp-grid-scroll-percentage', '0', 'important');
-                player.style.setProperty('--ytp-grid-peek-height', '0px', 'important');
-            }
-            
-            const gridElements = document.querySelectorAll('.ytp-fullscreen-grid, .ytp-fullscreen-grid-main-content, .ytp-fullscreen-grid-stills-container, .ytp-modern-videowall-still');
-            gridElements.forEach(el => {
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-                el.remove();
-            });
-
-            const panels = document.querySelectorAll('.ytp-fullerscreen-edu-panel, .ytp-cards-teaser, div[class*="fullerscreen"]');
-            panels.forEach(panel => {
-                panel.style.display = 'none';
-                panel.style.visibility = 'hidden';
-                panel.remove();
-            });
-
 
             if (rightControlTag && !document.getElementById("byui-comment-button")) {
                 showDebugLog("Insert Comment Button");
@@ -246,6 +248,7 @@ function run() {
         showDebugLog("Stopped trying to adjust layout after 10 seconds.");
     }, 10000);
 
+    disableFullscreenScroll();
     observeFullscreenChanges();
 }
 
@@ -289,6 +292,29 @@ document.addEventListener('yt-navigate-start', () => {
 document.addEventListener('yt-navigate-finish', run);
 run();
 window.addEventListener('resize', optimizedResizeHandler);
+
+let isFullscreenCommentsFeatureEnabled = false;
+
+// Get initial state from storage
+chrome.storage.sync.get(['isFullscreenCommentsEnabled'], (result) => {
+  isFullscreenCommentsFeatureEnabled = result.isFullscreenCommentsEnabled === undefined ? false : result.isFullscreenCommentsEnabled;
+  showDebugLog(`Fullscreen comments feature is ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
+});
+
+// Listen for changes in storage
+chrome.storage.onChanged.addListener((changes, namespace) => {
+  if (changes.isFullscreenCommentsEnabled) {
+    isFullscreenCommentsFeatureEnabled = !!changes.isFullscreenCommentsEnabled.newValue;
+    showDebugLog(`Fullscreen comments feature changed to ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
+    // If the feature is disabled, remove the button if it exists
+    if (!isFullscreenCommentsFeatureEnabled) {
+      const fullScreenCommentBtn = document.getElementById("byui-comment-button");
+      if (fullScreenCommentBtn) {
+        fullScreenCommentBtn.remove();
+      }
+    }
+  }
+});
 
 function toggleGridClass(isEnabled) {
   document.body.classList.toggle('byui-related-view', isEnabled);
