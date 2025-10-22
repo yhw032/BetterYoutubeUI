@@ -71,10 +71,10 @@ const attributesCallback = (mutationsList, observer) => {
             }
 
             resetComments(commentsTag, scrollPosBefore);
-            }
         }
     }
 };
+
 
 function createFullScreenCommentButton() {
     const fullScreenCommentBtn = document.createElement("button");
