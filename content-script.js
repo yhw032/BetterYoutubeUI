@@ -52,13 +52,10 @@ const attributesCallback = (mutationsList, observer) => {
                 fullScreenCommentBtn.addEventListener('click', function () {
                     showDebugLog("Comment Button Clicked");
 
-                    if (document.querySelector("ytd-live-chat-frame")) {
-                        toggleLiveChat();
-                    } else {
-                        let scrollPos = scrollPosBefore ? scrollPosBefore : (commentsTag ? commentsTag.scrollTop : 0);
-                        scrollPosBefore = 0;
-                        toggleComments(fullScreenVideo, commentsTag, scrollPos);
-                    }
+                    let scrollPos = scrollPosBefore ? scrollPosBefore : (commentsTag ? commentsTag.scrollTop : 0);
+                    scrollPosBefore = 0;
+                    toggleComments(fullScreenVideo, commentsTag, scrollPos);
+
                 });
             }
         } else {
@@ -73,10 +70,7 @@ const attributesCallback = (mutationsList, observer) => {
                 fullScreenCommentBtn.remove();
             }
 
-            if (document.querySelector("ytd-live-chat-frame")) {
-                resetLiveChat();
-            } else {
-                resetComments(commentsTag, scrollPosBefore);
+            resetComments(commentsTag, scrollPosBefore);
             }
         }
     }
@@ -106,25 +100,6 @@ function createFullScreenCommentButton() {
     return fullScreenCommentBtn;
 }
 
-function toggleLiveChat() {
-    const liveChatTag = document.getElementById('chat-container');
-    const playerContainer = document.getElementById('movie_player');
-    //const playerContainer = document.getElementById('full-bleed-container')
-
-    if (!liveChatTag || !playerContainer) return;
-
-    if (!liveChatTag.classList.contains("byui-fullscreen-live-chat")) {
-        liveChatTag.classList.add("byui-fullscreen-live-chat");
-        playerContainer.appendChild(liveChatTag);
-        document.body.classList.add('byui-no-scroll');
-    } else {
-        const secondaryInner = document.getElementById('secondary-inner');
-        if (!secondaryInner) return;
-        liveChatTag.classList.remove("byui-fullscreen-live-chat");
-        secondaryInner.appendChild(liveChatTag);
-        document.body.classList.remove('byui-no-scroll');
-    }
-}
 
 function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
     let commentsTag = commentsTagP;
@@ -160,17 +135,6 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
 function getCurrentScrollPos() {
     const commentsTag = document.getElementById('comments');
     return commentsTag ? commentsTag.scrollTop : 0;
-}
-
-function resetLiveChat() {
-    const liveChatTag = document.getElementById('chat-container');
-    const secondaryInner = document.getElementById('secondary-inner');
-
-    if (liveChatTag && secondaryInner && liveChatTag.classList.contains("byui-fullscreen-live-chat")) {
-        liveChatTag.classList.remove("byui-fullscreen-live-chat");
-        secondaryInner.appendChild(liveChatTag);
-        document.body.classList.remove('byui-no-scroll');
-    }
 }
 
 function resetComments(commentsTagP, scrollPos) {
