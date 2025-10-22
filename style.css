@@ -40,3 +40,186 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
     width: auto !important;
     padding-bottom: 6px;
 }
+
+
+/*전체화면 댓글창*/
+
+.byui-fullscreen-comment {
+    border: none;
+    border-radius: 0px !important;
+    background-color: rgba(0,0,0,0.7);
+    min-height: 100% !important;
+    min-width: 20% !important;
+    width: 20%; 
+    height:100%;
+    position: relative;
+    z-index: 11;
+    overflow: hidden;
+    float:right;
+}
+
+/*댓글 헤더 레이아웃 변경*/
+.byui-fullscreen-comment ytd-comments-header-renderer {
+    margin-bottom: 0;
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title{
+    display: block;
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title span {
+    color: rgb(245,245,245);
+}
+
+.byui-fullscreen-comment ytd-comments-header-renderer #title #leading-section{
+    margin-bottom: 15px;
+}
+
+/*고정 댓글*/
+.byui-fullscreen-comment .ytd-pinned-comment-badge-renderer {
+    color: rgb(200,200,200) !important;
+}
+
+/*댓글 작성자*/
+.byui-fullscreen-comment #author-text span {
+    color: rgb(245,245,245);
+}
+
+/*댓글 내용*/
+.byui-fullscreen-comment yt-attributed-string, .byui-fullscreen-comment yt-attributed-string *{
+    color: rgb(245,245,245) !important;
+}
+
+/*댓글 작성 시간*/
+.byui-fullscreen-comment #published-time-text a{
+    color: rgb(200,200,200) !important;
+}
+
+/*댓글 내 링크*/
+.byui-fullscreen-comment .yt-core-attributed-string__link {
+    color: rgb(200,200,255) !important;
+}
+
+/* 댓글 창 내 아이콘 하얗게 */
+.byui-fullscreen-comment svg {
+    filter: brightness(100);
+}
+
+/* 좋아요/싫어요 아이콘 하얗게 */
+.byui-fullscreen-comment #vote-count-middle {
+    filter: brightness(100);
+}
+
+/*정렬 기준*/
+.byui-fullscreen-comment #label #icon-label {
+    color:rgb(245,245,245);
+}
+
+/*자세히보기/간략히*/
+.byui-fullscreen-comment #more span, .byui-fullscreen-comment #less span {
+    color:rgb(180,180,180);
+}
+
+/*답글 작성 차단*/
+.byui-fullscreen-comment #simple-box, .byui-fullscreen-comment #reply-button-end {
+    display: none;
+}
+
+/*답글 더보기*/
+.byui-fullscreen-comment #more-replies span, .byui-fullscreen-comment #less-replies span, .byui-fullscreen-comment .ytd-continuation-item-renderer span {
+    color:rgb(210,210,255) !important;
+}
+
+.byui-fullscreen-comment #more-replies button:hover, .byui-fullscreen-comment #less-replies button:hover, .byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
+    background-color: rgba(85, 108, 167, 0.9);
+}
+
+/* 댓글 번역하기 */
+.byui-fullscreen-comment .translate-button * {
+    color: rgb(140,140,140) !important;
+}
+
+
+.byui-fullscreen-live-chat {
+    border: none;
+    border-radius: 0px !important;
+    min-height: 100% !important;
+    min-width: 20% !important;
+    width: 20%; 
+    height:100%;
+    position: relative;
+    z-index: 12;
+    float:right;
+}
+
+
+ytd-app[fullscreen] {
+    overflow: auto !important;
+}
+ytd-app[scrolling] {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: calc((var(--ytd-app-fullerscreen-scrollbar-width) + 1px)*-1) !important;
+    bottom: 0 !important;
+    overflow-x: auto !important;
+}
+ytd-watch-flexy[fullscreen] #single-column-container.ytd-watch-flexy,
+ytd-watch-flexy[fullscreen] #columns.ytd-watch-flexy {
+    display: flex !important;
+}
+
+/* Hide the fullscreen grid with recommended videos */
+.ytp-fullscreen-grid,
+.ytp-fullscreen-grid-main-content,
+.ytp-fullscreen-grid-stills-container,
+.ytp-modern-videowall-still,
+.ytp-fullscreen-grid-expand-button,
+.ytp-fullscreen-grid-hover-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    /*pointer-events: none !important;*/
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Completely disable grid scrolling CSS variables */
+.html5-video-player.ytp-grid-scrollable,
+.html5-video-player {
+    --ytp-grid-scroll-percentage: 0 !important;
+    --ytp-grid-peek-height: 0px !important;
+}
+
+/* Hide any fullscreen education panels and overlays */
+.ytp-fullerscreen-edu-panel,
+.ytp-cards-teaser,
+.ytp-cards-teaser-box,
+div[class*="fullerscreen"] {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+.ytp-delhi-modern.ytp-full-bleed-player.ytp-fullscreen-grid-active:not(.html5-video-player.ended-mode) .ytp-chrome-bottom {
+    bottom: 0 !important;
+    opacity: 1 !important;
+}
+
+.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern:not(.ytp-autohide) .ytp-chrome-bottom,.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern.ytp-autohide.ytp-grid-scrolling .ytp-chrome-bottom {
+    opacity: 1 !important;
+}
+
+.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern .ytp-chrome-bottom {
+    bottom: 0 !important;
+}
+
+.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-grid-scrolling .ytp-chrome-bottom {
+    pointer-events: auto !important;
+}
+
+.ytp-delhi-modern.ytp-fullscreen-grid-active:not(.html5-video-player.ended-mode):not(.ytp-grid-scrolling) .ytp-chrome-bottom {
+    display: auto !important;
+    bottom: 0 !important;
+}
