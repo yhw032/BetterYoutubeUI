@@ -118,7 +118,10 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
     let commentsTag = commentsTagP;
     if (!commentsTag) {
         commentsTag = document.getElementById('comments');
-        if (!commentsTag) return;
+        if (!commentsTag) {
+            showDebugLog("commentsTag not found");
+            return;
+        }
     }
 
     const playerContainer = document.getElementById('movie_player');
@@ -234,6 +237,17 @@ function run() {
 
     disableFullscreenScroll();
     observeFullscreenChanges();
+
+    // Check if we're already in fullscreen and restore comment state
+    const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
+
+    // Wait for DOM to be ready before restoring comments
+    setTimeout(() => {
+        if (ytdWatchFlexy && ytdWatchFlexy.hasAttribute('fullscreen') && isFullscreenCommentsFeatureEnabled) {
+            isCommentWindowOpen = false;
+            chrome.storage.sync.set({ commentWindowState: false });
+        }
+    }, 500);
 }
 
 
@@ -297,7 +311,7 @@ document.addEventListener('keydown', (event) => {
 
 
     if (event.key.toLowerCase() === 'b') {
-        showDebugLog("Keyboard shortcut 'V' pressed");
+        showDebugLog("Keyboard shortcut 'B' pressed");
         event.preventDefault();
 
         const fullScreenVideo = document.querySelector(".html5-main-video");
