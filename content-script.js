@@ -1,6 +1,9 @@
 const DEBUG_MODE = 0;
 showDebugLog("Starting Content Script");
 
+// Track comment window state
+let isCommentWindowOpen = false;
+
 const disableFullscreenScroll = () => {
     const player = document.querySelector('.html5-video-player');
     if (player) {
@@ -8,11 +11,11 @@ const disableFullscreenScroll = () => {
             player.classList.remove('ytp-grid-scrollable');
             showDebugLog("Removed ytp-grid-scrollable from player");
         }
-        
+
         player.style.setProperty('--ytp-grid-scroll-percentage', '0', 'important');
         player.style.setProperty('--ytp-grid-peek-height', '0px', 'important');
     }
-    
+
     const gridElements = document.querySelectorAll('.ytp-fullscreen-grid, .ytp-fullscreen-grid-main-content, .ytp-fullscreen-grid-stills-container, .ytp-modern-videowall-still');
     gridElements.forEach(el => {
         el.style.display = 'none';
@@ -58,6 +61,16 @@ const attributesCallback = (mutationsList, observer) => {
 
                 });
             }
+
+            // Restore comment window state if it was previously open
+            chrome.storage.sync.get(['commentWindowState'], (result) => {
+                if (result.commentWindowState === true && !isCommentWindowOpen) {
+                    showDebugLog("Restoring comment window state");
+                    setTimeout(() => {
+                        toggleComments(fullScreenVideo, commentsTag, scrollPosBefore);
+                    }, 300);
+                }
+            });
         } else {
             showDebugLog("Exiting Fullscreen");
             const fullScreenCommentBtn = document.getElementById("byui-comment-button");
@@ -119,6 +132,9 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
         if (fullScreenVideo) fullScreenVideo.classList.add('byui-align-video-left');
         commentsTag.scrollTop = scrollPos;
         document.body.classList.add('byui-no-scroll');
+        isCommentWindowOpen = true;
+        chrome.storage.sync.set({ commentWindowState: true });
+        showDebugLog("Comment window opened, state saved");
     } else {
         showDebugLog("Recover Comment Style from Fullscreen");
         const secondaryInner = document.getElementById('secondary-inner');
@@ -128,6 +144,9 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
         if (fullScreenVideo) fullScreenVideo.classList.remove('byui-align-video-left');
         commentsTag.scrollTop = scrollPos;
         document.body.classList.remove('byui-no-scroll');
+        isCommentWindowOpen = false;
+        chrome.storage.sync.set({ commentWindowState: false });
+        showDebugLog("Comment window closed, state saved");
     }
 }
 
@@ -151,6 +170,7 @@ function resetComments(commentsTagP, scrollPos) {
         commentsTag.classList.remove("byui-fullscreen-comment");
         secondaryInner.appendChild(commentsTag);
         document.body.classList.remove('byui-no-scroll');
+        isCommentWindowOpen = false;
     }
 
     if (scrollPos) {
@@ -189,7 +209,7 @@ function adjustLayout() {
             showDebugLog("Moved Comments to secondary view");
         }
     }
-    
+
     showDebugLog("Layout adjusted");
     return true;
 }
@@ -257,40 +277,71 @@ document.addEventListener('yt-navigate-finish', run);
 run();
 window.addEventListener('resize', optimizedResizeHandler);
 
+// Keyboard shortcut handler for toggling comments
+document.addEventListener('keydown', (event) => {
+    // Check if fullscreen comments feature is enabled
+    if (!isFullscreenCommentsFeatureEnabled) return;
+
+    // Check if the video is in fullscreen mode
+    const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
+    if (!ytdWatchFlexy || !ytdWatchFlexy.hasAttribute('fullscreen')) return;
+
+    // Check if user is typing in an input field
+    const activeElement = document.activeElement;
+    const isInputField = activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.isContentEditable
+    );
+    if (isInputField) return;
+
+
+    if (event.key.toLowerCase() === 'b') {
+        showDebugLog("Keyboard shortcut 'V' pressed");
+        event.preventDefault();
+
+        const fullScreenVideo = document.querySelector(".html5-main-video");
+        const commentsTag = document.getElementById('comments');
+        const scrollPos = commentsTag ? commentsTag.scrollTop : 0;
+
+        toggleComments(fullScreenVideo, commentsTag, scrollPos);
+    }
+});
+
 let isFullscreenCommentsFeatureEnabled = false;
 
 // Get initial state from storage
 chrome.storage.sync.get(['isFullscreenCommentsEnabled'], (result) => {
-  isFullscreenCommentsFeatureEnabled = result.isFullscreenCommentsEnabled === undefined ? false : result.isFullscreenCommentsEnabled;
-  showDebugLog(`Fullscreen comments feature is ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
+    isFullscreenCommentsFeatureEnabled = result.isFullscreenCommentsEnabled === undefined ? false : result.isFullscreenCommentsEnabled;
+    showDebugLog(`Fullscreen comments feature is ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
 });
 
 // Listen for changes in storage
 chrome.storage.onChanged.addListener((changes, namespace) => {
-  if (changes.isFullscreenCommentsEnabled) {
-    isFullscreenCommentsFeatureEnabled = !!changes.isFullscreenCommentsEnabled.newValue;
-    showDebugLog(`Fullscreen comments feature changed to ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
-    // If the feature is disabled, remove the button if it exists
-    if (!isFullscreenCommentsFeatureEnabled) {
-      const fullScreenCommentBtn = document.getElementById("byui-comment-button");
-      if (fullScreenCommentBtn) {
-        fullScreenCommentBtn.remove();
-      }
+    if (changes.isFullscreenCommentsEnabled) {
+        isFullscreenCommentsFeatureEnabled = !!changes.isFullscreenCommentsEnabled.newValue;
+        showDebugLog(`Fullscreen comments feature changed to ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
+        // If the feature is disabled, remove the button if it exists
+        if (!isFullscreenCommentsFeatureEnabled) {
+            const fullScreenCommentBtn = document.getElementById("byui-comment-button");
+            if (fullScreenCommentBtn) {
+                fullScreenCommentBtn.remove();
+            }
+        }
     }
-  }
 });
 
 function toggleGridClass(isEnabled) {
-  document.body.classList.toggle('byui-related-view', isEnabled);
+    document.body.classList.toggle('byui-related-view', isEnabled);
 }
 
 chrome.storage.sync.get(['isGridEnabled'], (result) => {
-  const isEnabled = result.isGridEnabled !== false;
-  toggleGridClass(isEnabled);
+    const isEnabled = result.isGridEnabled !== false;
+    toggleGridClass(isEnabled);
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'toggleGrid') {
-    toggleGridClass(request.isGridEnabled);
-  }
+    if (request.action === 'toggleGrid') {
+        toggleGridClass(request.isGridEnabled);
+    }
 });
