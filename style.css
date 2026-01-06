@@ -12,7 +12,7 @@
     min-height: 0;
     max-height: var(--ytd-watch-flexy-panel-max-height);
     overflow-y:scroll;
-    border: 1px solid var(--yt-spec-10-percent-layer);
+    border: 1px solid var(--yt-spec-outline);
     border-radius: 12px;
     padding: 0px 15px;
     margin-bottom: 15px;
