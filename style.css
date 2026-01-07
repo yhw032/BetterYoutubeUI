@@ -126,12 +126,12 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
 }
 
 /*답글 더보기*/
-.byui-fullscreen-comment #more-replies span, .byui-fullscreen-comment #less-replies span, .byui-fullscreen-comment .ytd-continuation-item-renderer span {
-    color:rgb(210,210,255) !important;
+.byui-fullscreen-comment .ytd-comment-replies-renderer span, .byui-fullscreen-comment .ytd-comment-replies-renderer span, .byui-fullscreen-comment .ytd-continuation-item-renderer span {
+    color:white !important;
 }
 
-.byui-fullscreen-comment #more-replies button:hover, .byui-fullscreen-comment #less-replies button:hover, .byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
-    background-color: rgba(85, 108, 167, 0.9);
+.byui-fullscreen-comment .ytd-comment-replies-renderer button:hover, .byui-fullscreen-comment .ytd-comment-replies-renderer button:hover, .byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 댓글 번역하기 */
