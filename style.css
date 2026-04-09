@@ -11,7 +11,7 @@
     */
     min-height: 0;
     max-height: var(--ytd-watch-flexy-panel-max-height);
-    overflow-y:scroll;
+    overflow-y: scroll;
     border: 1px solid var(--yt-spec-outline);
     border-radius: 12px;
     padding: 0px 15px;
@@ -19,24 +19,24 @@
 }
 
 
-body.byui-related-view #related ytd-item-section-renderer > #contents {
+body.byui-related-view #related ytd-item-section-renderer>#contents {
     width: 100%;
-    display:grid;
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     grid-auto-flow: dense;
     grid-gap: 16px;
 }
 
-body.byui-related-view #related ytd-item-section-renderer > #contents ytd-reel-shelf-renderer {
+body.byui-related-view #related ytd-item-section-renderer>#contents ytd-reel-shelf-renderer {
     grid-column: 1 / -1;
 }
 
-body.byui-related-view #related ytd-item-section-renderer > #contents .yt-lockup-view-model--horizontal {
+body.byui-related-view #related ytd-item-section-renderer>#contents .ytLockupViewModelHorizontal {
     flex-direction: column;
     margin-top: 0;
 }
 
-body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-lockup-view-model__content-image {
+body.byui-related-view #related ytd-item-section-renderer>#contents a.ytLockupViewModelContentImage {
     width: auto !important;
     padding-bottom: 6px;
 }
@@ -47,15 +47,15 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
 .byui-fullscreen-comment {
     border: none;
     border-radius: 0px !important;
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0, 0, 0, 0.7);
     min-height: 100% !important;
     min-width: 20% !important;
-    width: 20%; 
-    height:100%;
+    width: 20%;
+    height: 100%;
     position: relative;
     z-index: 11;
     overflow: hidden;
-    float:right;
+    float: right;
 }
 
 /*댓글 헤더 레이아웃 변경*/
@@ -63,41 +63,42 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
     margin-bottom: 0;
 }
 
-.byui-fullscreen-comment ytd-comments-header-renderer #title{
+.byui-fullscreen-comment ytd-comments-header-renderer #title {
     display: block;
 }
 
 .byui-fullscreen-comment ytd-comments-header-renderer #title span {
-    color: rgb(245,245,245);
+    color: rgb(245, 245, 245);
 }
 
-.byui-fullscreen-comment ytd-comments-header-renderer #title #leading-section{
+.byui-fullscreen-comment ytd-comments-header-renderer #title #leading-section {
     margin-bottom: 15px;
 }
 
 /*고정 댓글*/
 .byui-fullscreen-comment .ytd-pinned-comment-badge-renderer {
-    color: rgb(200,200,200) !important;
+    color: rgb(200, 200, 200) !important;
 }
 
 /*댓글 작성자*/
 .byui-fullscreen-comment #author-text span {
-    color: rgb(245,245,245);
+    color: rgb(245, 245, 245);
 }
 
 /*댓글 내용*/
-.byui-fullscreen-comment yt-attributed-string, .byui-fullscreen-comment yt-attributed-string *{
-    color: rgb(245,245,245) !important;
+.byui-fullscreen-comment yt-attributed-string,
+.byui-fullscreen-comment yt-attributed-string * {
+    color: rgb(245, 245, 245) !important;
 }
 
 /*댓글 작성 시간*/
-.byui-fullscreen-comment #published-time-text a{
-    color: rgb(200,200,200) !important;
+.byui-fullscreen-comment #published-time-text a {
+    color: rgb(200, 200, 200) !important;
 }
 
 /*댓글 내 링크*/
 .byui-fullscreen-comment .yt-core-attributed-string__link {
-    color: rgb(200,200,255) !important;
+    color: rgb(200, 200, 255) !important;
 }
 
 /* 댓글 창 내 아이콘 하얗게 */
@@ -112,31 +113,37 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
 
 /*정렬 기준*/
 .byui-fullscreen-comment #label #icon-label {
-    color:rgb(245,245,245);
+    color: rgb(245, 245, 245);
 }
 
 /*자세히보기/간략히*/
-.byui-fullscreen-comment #more span, .byui-fullscreen-comment #less span {
-    color:rgb(180,180,180);
+.byui-fullscreen-comment #more span,
+.byui-fullscreen-comment #less span {
+    color: rgb(180, 180, 180);
 }
 
 /*답글 작성 차단*/
-.byui-fullscreen-comment #simple-box, .byui-fullscreen-comment #reply-button-end {
+.byui-fullscreen-comment #simple-box,
+.byui-fullscreen-comment #reply-button-end {
     display: none;
 }
 
 /*답글 더보기*/
-.byui-fullscreen-comment .ytd-comment-replies-renderer span, .byui-fullscreen-comment .ytd-comment-replies-renderer span, .byui-fullscreen-comment .ytd-continuation-item-renderer span {
-    color:white !important;
+.byui-fullscreen-comment .ytd-comment-replies-renderer span,
+.byui-fullscreen-comment .ytd-comment-replies-renderer span,
+.byui-fullscreen-comment .ytd-continuation-item-renderer span {
+    color: white !important;
 }
 
-.byui-fullscreen-comment .ytd-comment-replies-renderer button:hover, .byui-fullscreen-comment .ytd-comment-replies-renderer button:hover, .byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
+.byui-fullscreen-comment .ytd-comment-replies-renderer button:hover,
+.byui-fullscreen-comment .ytd-comment-replies-renderer button:hover,
+.byui-fullscreen-comment .ytd-continuation-item-renderer button:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* 댓글 번역하기 */
 .byui-fullscreen-comment .translate-button * {
-    color: rgb(140,140,140) !important;
+    color: rgb(140, 140, 140) !important;
 }
 
 
@@ -145,17 +152,18 @@ body.byui-related-view #related ytd-item-section-renderer > #contents a.yt-locku
     border-radius: 0px !important;
     min-height: 100% !important;
     min-width: 20% !important;
-    width: 20%; 
-    height:100%;
+    width: 20%;
+    height: 100%;
     position: relative;
     z-index: 12;
-    float:right;
+    float: right;
 }
 
 
 ytd-app[fullscreen] {
     overflow: auto !important;
 }
+
 ytd-app[scrolling] {
     position: absolute !important;
     top: 0 !important;
@@ -164,6 +172,7 @@ ytd-app[scrolling] {
     bottom: 0 !important;
     overflow-x: auto !important;
 }
+
 ytd-watch-flexy[fullscreen] #single-column-container.ytd-watch-flexy,
 ytd-watch-flexy[fullscreen] #columns.ytd-watch-flexy {
     display: flex !important;
@@ -207,7 +216,8 @@ div[class*="fullerscreen"] {
     opacity: 1 !important;
 }
 
-.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern:not(.ytp-autohide) .ytp-chrome-bottom,.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern.ytp-autohide.ytp-grid-scrolling .ytp-chrome-bottom {
+.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern:not(.ytp-autohide) .ytp-chrome-bottom,
+.ytp-fullscreen-grid-peeking.ytp-full-bleed-player.ytp-delhi-modern.ytp-autohide.ytp-grid-scrolling .ytp-chrome-bottom {
     opacity: 1 !important;
 }
 
