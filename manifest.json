@@ -32,7 +32,6 @@
     ],
     "permissions": [
         "tabs",
-        "webNavigation",
         "storage"
     ],
     "content_security_policy": {
