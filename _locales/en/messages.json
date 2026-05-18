@@ -1,5 +1,26 @@
 {
     "extName": {
         "message": "Better Youtube UI"
+    },
+    "extDescription": {
+        "message": "Changes the location of YouTube comments and related items."
+    },
+    "settingsTitle": {
+        "message": "BetterYoutubeUI Settings"
+    },
+    "enableGridView": {
+        "message": "Enable Grid View for Related Videos"
+    },
+    "enableLegacyComments": {
+        "message": "Enable Legacy Fullscreen Comments Button"
+    },
+    "legacyCommentsWarning": {
+        "message": "Use with caution. This feature may not work as expected."
+    },
+    "viewComments": {
+        "message": "View comments b"
+    },
+    "viewCommentsTooltip": {
+        "message": "View comments(b)"
     }
 }

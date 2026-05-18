@@ -96,9 +96,9 @@ function createFullScreenCommentButton() {
 
     fullScreenCommentBtn.id = "byui-comment-button";
     fullScreenCommentBtn.classList.add("ytp-button");
-    fullScreenCommentBtn.setAttribute("aria-label", "댓글 보기 b");
+    fullScreenCommentBtn.setAttribute("aria-label", chrome.i18n.getMessage("viewComments") || "댓글 보기 b");
     fullScreenCommentBtn.setAttribute("data-tooltip-target-id", "byui-comment-button");
-    fullScreenCommentBtn.setAttribute("data-tooltip-title", "댓글 보기(b)");
+    fullScreenCommentBtn.setAttribute("data-tooltip-title", chrome.i18n.getMessage("viewCommentsTooltip") || "댓글 보기(b)");
 
 
     fullScreenCommentIcon.setAttributeNS(null, "fill", "none");

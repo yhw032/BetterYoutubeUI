@@ -1,5 +1,26 @@
 {
     "extName": {
         "message": "개선된 유튜브 UI"
+    },
+    "extDescription": {
+        "message": "유튜브 댓글 위치와 관련 항목의 위치를 변경합니다."
+    },
+    "settingsTitle": {
+        "message": "BetterYoutubeUI 설정"
+    },
+    "enableGridView": {
+        "message": "관련 동영상 그리드 뷰 사용"
+    },
+    "enableLegacyComments": {
+        "message": "레거시 전체화면 댓글 버튼 사용"
+    },
+    "legacyCommentsWarning": {
+        "message": "주의해서 사용하세요. 이 기능은 예상대로 작동하지 않을 수 있습니다."
+    },
+    "viewComments": {
+        "message": "댓글 보기 b"
+    },
+    "viewCommentsTooltip": {
+        "message": "댓글 보기(b)"
     }
 }

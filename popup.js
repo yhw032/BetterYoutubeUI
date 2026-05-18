@@ -1,3 +1,19 @@
+document.addEventListener('DOMContentLoaded', () => {
+  document.title = chrome.i18n.getMessage("settingsTitle") || "BetterYoutubeUI Settings";
+  
+  const settingsTitleEl = document.getElementById('settingsTitle');
+  if (settingsTitleEl) settingsTitleEl.innerText = chrome.i18n.getMessage("settingsTitle") || "BetterYoutubeUI Settings";
+  
+  const enableGridViewEl = document.getElementById('enableGridView');
+  if (enableGridViewEl) enableGridViewEl.innerText = chrome.i18n.getMessage("enableGridView") || "Enable Grid View for Related Videos";
+  
+  const enableLegacyCommentsEl = document.getElementById('enableLegacyComments');
+  if (enableLegacyCommentsEl) enableLegacyCommentsEl.innerText = chrome.i18n.getMessage("enableLegacyComments") || "Enable Legacy Fullscreen Comments Button";
+  
+  const legacyCommentsWarningItemEl = document.getElementById('legacyCommentsWarningItem');
+  if (legacyCommentsWarningItemEl) legacyCommentsWarningItemEl.title = chrome.i18n.getMessage("legacyCommentsWarning") || "Use with caution. This feature may not work as expected.";
+});
+
 const toggle = document.getElementById('toggleGrid');
 
 // Get the current state from storage and set the toggle
