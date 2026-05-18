@@ -1,0 +1,45 @@
+name: Extension Release Builder
+
+# 'workflow_dispatch'를 통해 GitHub 웹사이트에서 수동으로만 실행하도록 설정합니다.
+on: 
+  workflow_dispatch:
+    inputs:
+      versionTag:
+        description: '릴리즈 버전 태그 (예: v1.4.6)'     
+        required: true
+        default: 'v1.4.6'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 저장소의 코드를 불러옵니다.
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. 배포에 필요한 파일들만 zip으로 압축합니다.
+      - name: Create Zip Archive
+        run: |
+          # 확장프로그램용 zip 파일 생성 (-r: 하위폴더 포함)
+          # git 관련 파일이나 README 등 불필요한 파일은 배포판에서 제외하고
+          # 동작에 필요한 에셋만 압축합니다.
+          zip -r BetterYoutubeUI-${{ github.event.inputs.versionTag }}.zip \
+            manifest.json \
+            content-script.js \
+            style.css \
+            popup.html \
+            popup.js \
+            popup.css \
+            _locales/ \
+            icons/
+
+      # 3. 만들어진 zip 파일을 GitHub Release로 업로드합니다.
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.versionTag }}
+          name: Release ${{ github.event.inputs.versionTag }}
+          files: BetterYoutubeUI-${{ github.event.inputs.versionTag }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
