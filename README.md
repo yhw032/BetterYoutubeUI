@@ -6,6 +6,7 @@
 
 <p align="center">
   <a href="https://store.whale.naver.com/detail/dognllhkkhmkgpmhpfggjjcbcnhhnloi"><img src="https://img.shields.io/badge/Naver%20Whale%20Store-Available-00C73C?logo=naver&logoColor=white" alt="Whale Store"></a>
+  <a href="https://chromewebstore.google.com/detail/fdmgkaamheloiafimmckggeoipjnphdc?utm_source=item-share-cb"><img src="https://img.shields.io/badge/Chrome%20Web%20Store-Available-00C73C?logo=chromewebstore&logoColor=white" alt="Chrome Web Store"></a>
   <img src="https://img.shields.io/badge/version-1.4.6-blue" alt="Version">
   <img src="https://img.shields.io/badge/language-JavaScript-yellow" alt="JavaScript">
 </p>
