@@ -29,9 +29,11 @@
 
 ## 🚀 설치 방법
 
-네이버 웨일 스토어에서 바로 설치할 수 있습니다:
+아래 스토어에서 바로 설치할 수 있습니다:
 
 <span style="font-size: 150%;">[🔗 웨일 스토어 링크](https://store.whale.naver.com/detail/dognllhkkhmkgpmhpfggjjcbcnhhnloi)</span>
+
+<span style="font-size: 150%;">[🔗 크롬 웹스토어 링크](https://chromewebstore.google.com/detail/fdmgkaamheloiafimmckggeoipjnphdc?utm_source=item-share-cb)</span>
 
 ## 📸 스크린샷
 
