@@ -29,9 +29,11 @@ BetterYoutubeUI is a browser extension that significantly improves your YouTube 
 
 ## 🚀 Installation
 
-You can install the extension directly from the Naver Whale Store:
+You can install the extension directly from the stores below:
 
 <span style="font-size: 150%;">[🔗 Naver Whale Store Link](https://store.whale.naver.com/detail/dognllhkkhmkgpmhpfggjjcbcnhhnloi)</span>
+
+<span style="font-size: 150%;">[🔗 Chrome Web Store Link](https://chromewebstore.google.com/detail/fdmgkaamheloiafimmckggeoipjnphdc?utm_source=item-share-cb)</span>
 
 ## 📸 Screenshots
 
