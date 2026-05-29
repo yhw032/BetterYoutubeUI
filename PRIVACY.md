@@ -32,4 +32,4 @@ This extension does not use analytics, tracking tools, advertisements, or teleme
 
 If you have questions about this privacy policy, please contact:
 
-hw010603@gamil.com
+hw010603@gmail.com
