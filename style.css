@@ -58,6 +58,11 @@ body.byui-related-view #related ytd-item-section-renderer>#contents a.ytLockupVi
     float: right;
 }
 
+#comments.byui-fullscreen-comment {
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+}
+
 /*댓글 헤더 레이아웃 변경*/
 .byui-fullscreen-comment ytd-comments-header-renderer {
     margin-bottom: 0;
@@ -160,7 +165,7 @@ body.byui-related-view #related ytd-item-section-renderer>#contents a.ytLockupVi
 }
 
 
-ytd-app[fullscreen] {
+/* ytd-app[fullscreen] {
     overflow: auto !important;
 }
 
@@ -176,10 +181,10 @@ ytd-app[scrolling] {
 ytd-watch-flexy[fullscreen] #single-column-container.ytd-watch-flexy,
 ytd-watch-flexy[fullscreen] #columns.ytd-watch-flexy {
     display: flex !important;
-}
+} */
 
 /* Hide the fullscreen grid with recommended videos */
-.ytp-fullscreen-grid,
+/* .ytp-fullscreen-grid,
 .ytp-fullscreen-grid-main-content,
 .ytp-fullscreen-grid-stills-container,
 .ytp-modern-videowall-still,
@@ -188,21 +193,21 @@ ytd-watch-flexy[fullscreen] #columns.ytd-watch-flexy {
     display: none !important;
     opacity: 0 !important;
     visibility: hidden !important;
-    /*pointer-events: none !important;*/
+
     height: 0 !important;
     max-height: 0 !important;
     overflow: hidden !important;
-}
+} */
 
 /* Completely disable grid scrolling CSS variables */
-.html5-video-player.ytp-grid-scrollable,
+/* .html5-video-player.ytp-grid-scrollable,
 .html5-video-player {
     --ytp-grid-scroll-percentage: 0 !important;
     --ytp-grid-peek-height: 0px !important;
-}
+} */
 
 /* Hide any fullscreen education panels and overlays */
-.ytp-fullerscreen-edu-panel,
+/* .ytp-fullerscreen-edu-panel,
 .ytp-cards-teaser,
 .ytp-cards-teaser-box,
 div[class*="fullerscreen"] {
@@ -232,4 +237,4 @@ div[class*="fullerscreen"] {
 .ytp-delhi-modern.ytp-fullscreen-grid-active:not(.html5-video-player.ended-mode):not(.ytp-grid-scrolling) .ytp-chrome-bottom {
     display: auto !important;
     bottom: 0 !important;
-}
+}  */

@@ -115,6 +115,11 @@ function createFullScreenCommentButton() {
 }
 
 
+function stopFullscreenCommentWheelPropagation(event) {
+    event.stopPropagation();
+}
+
+
 function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
     let commentsTag = commentsTagP;
     if (!commentsTag) {
@@ -132,6 +137,7 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
     if (!commentsTag.classList.contains("byui-fullscreen-comment")) {
         showDebugLog("Change Comment Style to Fullscreen");
         commentsTag.classList.add("byui-fullscreen-comment");
+        commentsTag.addEventListener('wheel', stopFullscreenCommentWheelPropagation);
         playerContainer.prepend(commentsTag);
         if (fullScreenVideo) fullScreenVideo.classList.add('byui-align-video-left');
         commentsTag.scrollTop = scrollPos;
@@ -144,6 +150,7 @@ function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
         const secondaryInner = document.getElementById('secondary-inner');
         if (!secondaryInner) return;
         commentsTag.classList.remove("byui-fullscreen-comment");
+        commentsTag.removeEventListener('wheel', stopFullscreenCommentWheelPropagation);
         secondaryInner.appendChild(commentsTag);
         if (fullScreenVideo) fullScreenVideo.classList.remove('byui-align-video-left');
         commentsTag.scrollTop = scrollPos;
@@ -172,6 +179,7 @@ function resetComments(commentsTagP, scrollPos) {
 
     if (commentsTag.classList.contains("byui-fullscreen-comment")) {
         commentsTag.classList.remove("byui-fullscreen-comment");
+        commentsTag.removeEventListener('wheel', stopFullscreenCommentWheelPropagation);
         secondaryInner.appendChild(commentsTag);
         document.body.classList.remove('byui-no-scroll');
         isCommentWindowOpen = false;
@@ -236,7 +244,7 @@ function run() {
         showDebugLog("Stopped trying to adjust layout after 10 seconds.");
     }, 10000);
 
-    disableFullscreenScroll();
+    //disableFullscreenScroll();
     observeFullscreenChanges();
 
     // Check if we're already in fullscreen and restore comment state
