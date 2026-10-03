@@ -1,93 +1,138 @@
 const DEBUG_MODE = 0;
-showDebugLog("Starting Content Script");
+let isFullscreenCommentsFeatureEnabled = false;
+let navigating = false;
+let observedWatch = null;
+let fullscreenActive = false;
+let restoreVersion = 0;
+let restoreTimer = null;
+let layoutInterval = null;
+let layoutDeadline = null;
+let resizeTimer = null;
+let openedComments = null;
+let openedVideo = null;
+let originalParent = null;
+let featureSettingChanged = false;
+let gridSettingChanged = false;
 
-// Track comment window state
-let isCommentWindowOpen = false;
-
-const disableFullscreenScroll = () => {
-    const player = document.querySelector('.html5-video-player');
-    if (player) {
-        if (player.classList.contains('ytp-grid-scrollable')) {
-            player.classList.remove('ytp-grid-scrollable');
-            showDebugLog("Removed ytp-grid-scrollable from player");
-        }
-
-        player.style.setProperty('--ytp-grid-scroll-percentage', '0', 'important');
-        player.style.setProperty('--ytp-grid-peek-height', '0px', 'important');
-    }
-
-    const gridElements = document.querySelectorAll('.ytp-fullscreen-grid, .ytp-fullscreen-grid-main-content, .ytp-fullscreen-grid-stills-container, .ytp-modern-videowall-still');
-    gridElements.forEach(el => {
-        el.style.display = 'none';
-        el.style.visibility = 'hidden';
-        el.remove();
-    });
-
-    const panels = document.querySelectorAll('.ytp-fullerscreen-edu-panel, .ytp-cards-teaser, div[class*="fullerscreen"]');
-    panels.forEach(panel => {
-        panel.style.display = 'none';
-        panel.style.visibility = 'hidden';
-        panel.remove();
-    });
+function showDebugLog(message) {
+    if (DEBUG_MODE) console.log('[BetterYoutubeUI] ' + message);
 }
 
-const attributesCallback = (mutationsList, observer) => {
-    for (const mutation of mutationsList) {
-        if (mutation.attributeName !== 'fullscreen') continue;
+function isWatchPage() {
+    return !navigating && new URL(window.location.href).pathname === '/watch';
+}
 
-        const isFullscreen = mutation.target.hasAttribute('fullscreen');
-        const fullScreenVideo = document.querySelector(".html5-main-video");
-        const commentsTag = document.getElementById('comments');
-        let scrollPosBefore = commentsTag ? commentsTag.scrollTop : 0;
+function currentWatch() {
+    return isWatchPage() ? document.querySelector('ytd-watch-flexy') : null;
+}
 
-        if (isFullscreen) {
-            if (!isFullscreenCommentsFeatureEnabled) return;
-            showDebugLog("Entering Fullscreen");
+function canOpenComments() {
+    return isFullscreenCommentsFeatureEnabled && !!currentWatch()?.hasAttribute('fullscreen');
+}
 
-            const fullScreenCommentBtn = createFullScreenCommentButton();
-            const rightControlTag = document.querySelector(".ytp-right-controls-left");
+// Incrementing the version also invalidates storage callbacks that have not returned yet.
+function cancelRestore() {
+    restoreVersion++;
+    clearTimeout(restoreTimer);
+    restoreTimer = null;
+}
 
-            if (rightControlTag && !document.getElementById("byui-comment-button")) {
-                showDebugLog("Insert Comment Button");
-                //rightControlTag.insertBefore(fullScreenCommentBtn, rightControlTag.children[1]);
-                rightControlTag.appendChild(fullScreenCommentBtn);
+function stopFullscreenCommentWheelPropagation(event) {
+    event.stopPropagation();
+}
 
-                fullScreenCommentBtn.addEventListener('click', function () {
-                    showDebugLog("Comment Button Clicked");
+function commentDestination() {
+    const watch = currentWatch();
+    if (!watch) return null;
+    const below = watch.querySelector('#below');
+    const secondary = watch.querySelector('#secondary-inner');
+    return window.innerWidth < 1000 ? (below || secondary) : (secondary || below);
+}
 
-                    let scrollPos = scrollPosBefore ? scrollPosBefore : (commentsTag ? commentsTag.scrollTop : 0);
-                    scrollPosBefore = 0;
-                    toggleComments(fullScreenVideo, commentsTag, scrollPos);
+function openComments() {
+    if (!canOpenComments()) return false;
+    const watch = currentWatch();
+    const comments = watch.querySelector('#comments');
+    const player = watch.querySelector('#movie_player');
+    if (!comments || !player) return false;
+    if (comments.classList.contains('byui-fullscreen-comment')) return true;
 
-                });
-            }
+    const scrollTop = comments.scrollTop;
+    openedComments = comments;
+    openedVideo = watch.querySelector('.html5-main-video');
+    originalParent = comments.parentNode;
+    comments.classList.add('byui-fullscreen-comment');
+    comments.addEventListener('wheel', stopFullscreenCommentWheelPropagation);
+    player.prepend(comments);
+    openedVideo?.classList.add('byui-align-video-left');
+    document.body.classList.add('byui-no-scroll');
+    comments.scrollTop = scrollTop;
+    return true;
+}
 
-            // Restore comment window state if it was previously open
-            chrome.storage.sync.get(['commentWindowState'], (result) => {
-                if (result.commentWindowState === true && !isCommentWindowOpen) {
-                    showDebugLog("Restoring comment window state");
-                    setTimeout(() => {
-                        toggleComments(fullScreenVideo, commentsTag, scrollPosBefore);
-                    }, 300);
-                }
-            });
-        } else {
-            showDebugLog("Exiting Fullscreen");
-            const fullScreenCommentBtn = document.getElementById("byui-comment-button");
-
-            if (fullScreenVideo && fullScreenVideo.classList.contains('byui-align-video-left')) {
-                fullScreenVideo.classList.remove('byui-align-video-left');
-            }
-
-            if (fullScreenCommentBtn) {
-                fullScreenCommentBtn.remove();
-            }
-
-            resetComments(commentsTag, scrollPosBefore);
-        }
+// Closing the UI does not erase the user's preference to restore it next time.
+function closeComments() {
+    const comments = openedComments;
+    openedVideo?.classList.remove('byui-align-video-left');
+    document.body.classList.remove('byui-no-scroll');
+    if (comments) {
+        const scrollTop = comments.scrollTop;
+        comments.classList.remove('byui-fullscreen-comment');
+        comments.removeEventListener('wheel', stopFullscreenCommentWheelPropagation);
+        const destination = commentDestination() || (originalParent?.isConnected ? originalParent : null);
+        if (destination && comments.parentNode !== destination) destination.appendChild(comments);
+        comments.scrollTop = scrollTop;
     }
-};
+    openedComments = null;
+    openedVideo = null;
+    originalParent = null;
+}
 
+function toggleComments() {
+    cancelRestore();
+    if (!canOpenComments()) return;
+    if (openedComments) {
+        closeComments();
+        chrome.storage.sync.set({ commentWindowState: false });
+    } else if (openComments()) {
+        chrome.storage.sync.set({ commentWindowState: true });
+    }
+}
+
+function clearFullscreenUI() {
+    cancelRestore();
+    document.getElementById('byui-comment-button')?.remove();
+    closeComments();
+    fullscreenActive = false;
+}
+
+function syncFullscreenUI() {
+    if (!canOpenComments()) {
+        clearFullscreenUI();
+        return;
+    }
+    const watch = currentWatch();
+    const controls = watch.querySelector('.ytp-right-controls-left') || watch.querySelector('.ytp-right-controls');
+    if (controls && !document.getElementById('byui-comment-button')) {
+        const button = createFullScreenCommentButton();
+        button.addEventListener('click', toggleComments);
+        controls.appendChild(button);
+    }
+    if (fullscreenActive) return;
+    fullscreenActive = true;
+    cancelRestore();
+    const version = restoreVersion;
+    chrome.storage.sync.get(['commentWindowState'], (result) => {
+        if (version !== restoreVersion || !canOpenComments() || currentWatch() !== watch) return;
+        if (result.commentWindowState !== true) return;
+        restoreTimer = setTimeout(() => {
+            restoreTimer = null;
+            if (version === restoreVersion && canOpenComments() && currentWatch() === watch) {
+                openComments();
+            }
+        }, 300);
+    });
+}
 
 function createFullScreenCommentButton() {
     const fullScreenCommentBtn = document.createElement("button");
@@ -115,256 +160,124 @@ function createFullScreenCommentButton() {
 }
 
 
-function stopFullscreenCommentWheelPropagation(event) {
-    event.stopPropagation();
-}
-
-
-function toggleComments(fullScreenVideo, commentsTagP, scrollPos) {
-    let commentsTag = commentsTagP;
-    if (!commentsTag) {
-        commentsTag = document.getElementById('comments');
-        if (!commentsTag) {
-            showDebugLog("commentsTag not found");
-            return;
-        }
-    }
-
-    const playerContainer = document.getElementById('movie_player');
-    //const playerContainer = document.getElementById('full-bleed-container')
-    if (!playerContainer) return;
-
-    if (!commentsTag.classList.contains("byui-fullscreen-comment")) {
-        showDebugLog("Change Comment Style to Fullscreen");
-        commentsTag.classList.add("byui-fullscreen-comment");
-        commentsTag.addEventListener('wheel', stopFullscreenCommentWheelPropagation);
-        playerContainer.prepend(commentsTag);
-        if (fullScreenVideo) fullScreenVideo.classList.add('byui-align-video-left');
-        commentsTag.scrollTop = scrollPos;
-        document.body.classList.add('byui-no-scroll');
-        isCommentWindowOpen = true;
-        chrome.storage.sync.set({ commentWindowState: true });
-        showDebugLog("Comment window opened, state saved");
-    } else {
-        showDebugLog("Recover Comment Style from Fullscreen");
-        const secondaryInner = document.getElementById('secondary-inner');
-        if (!secondaryInner) return;
-        commentsTag.classList.remove("byui-fullscreen-comment");
-        commentsTag.removeEventListener('wheel', stopFullscreenCommentWheelPropagation);
-        secondaryInner.appendChild(commentsTag);
-        if (fullScreenVideo) fullScreenVideo.classList.remove('byui-align-video-left');
-        commentsTag.scrollTop = scrollPos;
-        document.body.classList.remove('byui-no-scroll');
-        isCommentWindowOpen = false;
-        chrome.storage.sync.set({ commentWindowState: false });
-        showDebugLog("Comment window closed, state saved");
-    }
-}
-
-
-function getCurrentScrollPos() {
-    const commentsTag = document.getElementById('comments');
-    return commentsTag ? commentsTag.scrollTop : 0;
-}
-
-function resetComments(commentsTagP, scrollPos) {
-    let commentsTag = commentsTagP;
-    if (!commentsTag) {
-        commentsTag = document.getElementById('comments');
-        if (!commentsTag) return;
-    }
-
-    const secondaryInner = document.getElementById('secondary-inner');
-    if (!secondaryInner) return;
-
-    if (commentsTag.classList.contains("byui-fullscreen-comment")) {
-        commentsTag.classList.remove("byui-fullscreen-comment");
-        commentsTag.removeEventListener('wheel', stopFullscreenCommentWheelPropagation);
-        secondaryInner.appendChild(commentsTag);
-        document.body.classList.remove('byui-no-scroll');
-        isCommentWindowOpen = false;
-    }
-
-    if (scrollPos) {
-        setTimeout(() => {
-            commentsTag.scrollTop = scrollPos;
-        }, 300);
-    }
-}
-
 function adjustLayout() {
-    if (window.location.href.includes('/shorts/')) return true;
-
-    const commentsElement = document.getElementById('comments');
-    const relatedElement = document.getElementById('related');
-    const belowElement = document.querySelector('ytd-watch-flexy #below');
-    const secondElement = document.getElementById('secondary-inner');
-
-    if (!commentsElement || !relatedElement || !belowElement || !secondElement) {
-        showDebugLog("Elements not ready yet for layout adjustment.");
-        return false;
+    const watch = currentWatch();
+    if (!watch) return false;
+    const comments = watch.querySelector('#comments');
+    const related = watch.querySelector('#related');
+    const below = watch.querySelector('#below');
+    const destination = commentDestination();
+    // Related videos can still be positioned when comments are unavailable.
+    if (related && below && !below.contains(related)) below.appendChild(related);
+    if (comments && destination && !comments.classList.contains('byui-fullscreen-comment') && !destination.contains(comments)) {
+        const scrollTop = comments.scrollTop;
+        destination.appendChild(comments);
+        comments.scrollTop = scrollTop;
     }
+    return !!(comments && related && below && destination);
+}
 
-    if (!belowElement.contains(relatedElement)) {
-        belowElement.appendChild(relatedElement);
-        showDebugLog("Moved Related to below view");
+const fullscreenObserver = new MutationObserver(() => {
+    syncFullscreenUI();
+    adjustLayout();
+});
+
+function stopLayoutPolling() {
+    clearInterval(layoutInterval);
+    clearTimeout(layoutDeadline);
+    layoutInterval = null;
+    layoutDeadline = null;
+}
+
+function cleanupPage() {
+    stopLayoutPolling();
+    clearTimeout(resizeTimer);
+    resizeTimer = null;
+    fullscreenObserver.disconnect();
+    observedWatch = null;
+    clearFullscreenUI();
+}
+
+function setupPage() {
+    const watch = currentWatch();
+    if (!watch) return false;
+    if (watch !== observedWatch) {
+        fullscreenObserver.disconnect();
+        clearFullscreenUI();
+        observedWatch = watch;
+        fullscreenObserver.observe(watch, { attributes: true, attributeFilter: ['fullscreen'] });
     }
-
-    if (window.innerWidth < 1000) {
-        if (!belowElement.contains(commentsElement)) {
-            belowElement.appendChild(commentsElement);
-            showDebugLog("Moved Comments to below view");
-        }
-    } else {
-        if (!secondElement.contains(commentsElement)) {
-            secondElement.appendChild(commentsElement);
-            showDebugLog("Moved Comments to secondary view");
-        }
-    }
-
-    showDebugLog("Layout adjusted");
-    return true;
+    const ready = adjustLayout();
+    syncFullscreenUI();
+    const controlsReady = !canOpenComments() || !!document.getElementById('byui-comment-button');
+    return ready && controlsReady;
 }
 
 function run() {
-    if (window.location.href.includes('/shorts/')) {
-        showDebugLog("Skipping, on shorts");
-        return;
-    }
-
-    const interval = setInterval(() => {
-        if (adjustLayout()) {
-            showDebugLog("Initial layout setup finished.");
-            clearInterval(interval);
-        }
+    cleanupPage();
+    navigating = false;
+    if (!isWatchPage() || setupPage()) return;
+    layoutInterval = setInterval(() => {
+        if (setupPage()) stopLayoutPolling();
     }, 500);
-
-    setTimeout(() => {
-        clearInterval(interval);
-        showDebugLog("Stopped trying to adjust layout after 10 seconds.");
-    }, 10000);
-
-    //disableFullscreenScroll();
-    observeFullscreenChanges();
-
-    // Check if we're already in fullscreen and restore comment state
-    const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
-
-    // Wait for DOM to be ready before restoring comments
-    setTimeout(() => {
-        if (ytdWatchFlexy && ytdWatchFlexy.hasAttribute('fullscreen') && isFullscreenCommentsFeatureEnabled) {
-            isCommentWindowOpen = false;
-            chrome.storage.sync.set({ commentWindowState: false });
-        }
-    }, 500);
-}
-
-
-function showDebugLog(msg) {
-    if (DEBUG_MODE == 1) {
-        console.log(`[BetterYoutubeUI] ${msg}`);
-    }
-}
-
-const optimizedResizeHandler = debounce(adjustLayout, 200);
-
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        const context = this;
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(context, args), wait);
-    };
-}
-
-const fullscreenObserver = new MutationObserver(attributesCallback);
-
-function observeFullscreenChanges() {
-    const targetNode = document.querySelector('ytd-watch-flexy');
-    if (targetNode) {
-        const config = { attributes: true, attributeFilter: ['fullscreen'] };
-        fullscreenObserver.observe(targetNode, config);
-        showDebugLog("Observer is watching for fullscreen changes on ytd-watch-flexy.");
-    } else {
-        showDebugLog("Observer target 'ytd-watch-flexy' not found. Retrying in 1s.");
-        setTimeout(observeFullscreenChanges, 1000);
-    }
+    layoutDeadline = setTimeout(stopLayoutPolling, 10000);
 }
 
 document.addEventListener('yt-navigate-start', () => {
-    fullscreenObserver.disconnect();
-    showDebugLog("Fullscreen observer disconnected.");
+    // Restore nodes while the old page is still available.
+    cleanupPage();
+    navigating = true;
 });
-
 document.addEventListener('yt-navigate-finish', run);
-run();
-window.addEventListener('resize', optimizedResizeHandler);
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    if (!isWatchPage()) return;
+    resizeTimer = setTimeout(() => {
+        resizeTimer = null;
+        adjustLayout();
+    }, 200);
+});
 
-// Keyboard shortcut handler for toggling comments
 document.addEventListener('keydown', (event) => {
-    // Check if fullscreen comments feature is enabled
-    if (!isFullscreenCommentsFeatureEnabled) return;
-
-    // Check if the video is in fullscreen mode
-    const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
-    if (!ytdWatchFlexy || !ytdWatchFlexy.hasAttribute('fullscreen')) return;
-
-    // Check if user is typing in an input field
-    const activeElement = document.activeElement;
-    const isInputField = activeElement && (
-        activeElement.tagName === 'INPUT' ||
-        activeElement.tagName === 'TEXTAREA' ||
-        activeElement.isContentEditable
-    );
-    if (isInputField) return;
-
-
+    if (!canOpenComments() || event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey) return;
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return;
     if (event.key.toLowerCase() === 'b') {
-        showDebugLog("Keyboard shortcut 'B' pressed");
         event.preventDefault();
-
-        const fullScreenVideo = document.querySelector(".html5-main-video");
-        const commentsTag = document.getElementById('comments');
-        const scrollPos = commentsTag ? commentsTag.scrollTop : 0;
-
-        toggleComments(fullScreenVideo, commentsTag, scrollPos);
+        toggleComments();
     }
 });
 
-let isFullscreenCommentsFeatureEnabled = false;
-
-// Get initial state from storage
-chrome.storage.sync.get(['isFullscreenCommentsEnabled'], (result) => {
-    isFullscreenCommentsFeatureEnabled = result.isFullscreenCommentsEnabled === undefined ? false : result.isFullscreenCommentsEnabled;
-    showDebugLog(`Fullscreen comments feature is ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
-});
-
-// Listen for changes in storage
-chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (changes.isFullscreenCommentsEnabled) {
-        isFullscreenCommentsFeatureEnabled = !!changes.isFullscreenCommentsEnabled.newValue;
-        showDebugLog(`Fullscreen comments feature changed to ${isFullscreenCommentsFeatureEnabled ? 'enabled' : 'disabled'}`);
-        // If the feature is disabled, remove the button if it exists
-        if (!isFullscreenCommentsFeatureEnabled) {
-            const fullScreenCommentBtn = document.getElementById("byui-comment-button");
-            if (fullScreenCommentBtn) {
-                fullScreenCommentBtn.remove();
-            }
-        }
-    }
-});
-
-function toggleGridClass(isEnabled) {
-    document.body.classList.toggle('byui-related-view', isEnabled);
+function toggleGridClass(enabled) {
+    document.body.classList.toggle('byui-related-view', enabled);
 }
 
-chrome.storage.sync.get(['isGridEnabled'], (result) => {
-    const isEnabled = result.isGridEnabled !== false;
-    toggleGridClass(isEnabled);
-});
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'toggleGrid') {
-        toggleGridClass(request.isGridEnabled);
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace !== 'sync') return;
+    if (changes.isFullscreenCommentsEnabled) {
+        featureSettingChanged = true;
+        isFullscreenCommentsFeatureEnabled = changes.isFullscreenCommentsEnabled.newValue === true;
+        syncFullscreenUI();
+        adjustLayout();
+    }
+    if (changes.isGridEnabled) {
+        gridSettingChanged = true;
+        toggleGridClass(changes.isGridEnabled.newValue !== false);
     }
 });
+
+chrome.storage.sync.get(['isFullscreenCommentsEnabled', 'isGridEnabled'], (result) => {
+    // A newer change event must win over a delayed initial read.
+    if (!featureSettingChanged) isFullscreenCommentsFeatureEnabled = result.isFullscreenCommentsEnabled === true;
+    if (!gridSettingChanged) toggleGridClass(result.isGridEnabled !== false);
+    syncFullscreenUI();
+});
+
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === 'toggleGrid') {
+        gridSettingChanged = true;
+        toggleGridClass(request.isGridEnabled !== false);
+    }
+});
+
+run();
