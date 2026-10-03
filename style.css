@@ -108,12 +108,14 @@ body.byui-related-view #related ytd-item-section-renderer>#contents a.ytLockupVi
 
 /* 댓글 창 내 아이콘 하얗게 */
 .byui-fullscreen-comment svg {
-    filter: brightness(100);
+    color: rgb(245, 245, 245);
+    fill: currentColor;
 }
 
 /* 좋아요/싫어요 아이콘 하얗게 */
 .byui-fullscreen-comment #vote-count-middle {
-    filter: brightness(100);
+    color: rgb(245, 245, 245);
+    fill: currentColor;
 }
 
 /*정렬 기준*/
