@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       versionTag:
-        description: '릴리즈 버전 태그 (예: v1.4.6)'     
+        description: '릴리즈 버전 태그 (예: v1.4.8)'
         required: true
-        default: 'v1.4.6'
+        default: 'v1.4.8'
 
 jobs:
   build-and-release:
