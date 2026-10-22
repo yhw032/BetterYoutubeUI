@@ -8,6 +8,7 @@ let restoreTimer = null;
 let layoutInterval = null;
 let layoutDeadline = null;
 let resizeTimer = null;
+let layoutRepairTimer = null;
 let openedComments = null;
 let openedVideo = null;
 let originalParent = null;
@@ -164,18 +165,44 @@ function adjustLayout() {
     const watch = currentWatch();
     if (!watch) return false;
     const comments = watch.querySelector('#comments');
-    const related = watch.querySelector('#related');
+    const related = watch.querySelectorAll('#related');
     const below = watch.querySelector('#below');
     const destination = commentDestination();
     // Related videos can still be positioned when comments are unavailable.
-    if (related && below && !below.contains(related)) below.appendChild(related);
+    // During renderer replacement an old, empty #related may coexist with the new one.
+    if (below) {
+        for (const element of related) {
+            if (!below.contains(element)) below.appendChild(element);
+        }
+    }
     if (comments && destination && !comments.classList.contains('byui-fullscreen-comment') && !destination.contains(comments)) {
         const scrollTop = comments.scrollTop;
         destination.appendChild(comments);
         comments.scrollTop = scrollTop;
     }
-    return !!(comments && related && below && destination);
+    return !!(comments && related.length && below && destination);
 }
+
+// YouTube can rebuild or reparent these containers after initial layout succeeds.
+// Observe child-list changes only; player attributes and comment text updates
+// should not continuously trigger layout work.
+const layoutContainers = '#related, #below, #comments, #secondary-inner';
+function containsLayoutContainer(node) {
+    return node.nodeType === 1 && (node.matches(layoutContainers) || node.querySelector(layoutContainers));
+}
+
+const layoutObserver = new MutationObserver((mutations) => {
+    if (!isWatchPage() || layoutRepairTimer !== null) return;
+    const changed = mutations.some(mutation =>
+        [...mutation.addedNodes, ...mutation.removedNodes].some(containsLayoutContainer));
+    if (!changed) return;
+    const watch = observedWatch;
+    // Coalesce batches without postponing repair indefinitely during updates.
+    layoutRepairTimer = setTimeout(() => {
+        layoutRepairTimer = null;
+        if (watch && watch === observedWatch && watch === currentWatch()) adjustLayout();
+    }, 50);
+});
 
 const fullscreenObserver = new MutationObserver(() => {
     syncFullscreenUI();
@@ -191,6 +218,9 @@ function stopLayoutPolling() {
 
 function cleanupPage() {
     stopLayoutPolling();
+    layoutObserver.disconnect();
+    clearTimeout(layoutRepairTimer);
+    layoutRepairTimer = null;
     clearTimeout(resizeTimer);
     resizeTimer = null;
     fullscreenObserver.disconnect();
@@ -202,10 +232,14 @@ function setupPage() {
     const watch = currentWatch();
     if (!watch) return false;
     if (watch !== observedWatch) {
+        layoutObserver.disconnect();
+        clearTimeout(layoutRepairTimer);
+        layoutRepairTimer = null;
         fullscreenObserver.disconnect();
         clearFullscreenUI();
         observedWatch = watch;
         fullscreenObserver.observe(watch, { attributes: true, attributeFilter: ['fullscreen'] });
+        layoutObserver.observe(watch, { childList: true, subtree: true });
     }
     const ready = adjustLayout();
     syncFullscreenUI();

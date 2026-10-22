@@ -17,17 +17,31 @@ function setup({ width = 1200, saved = false, enabled = true, route = '/watch?v=
             const classes = new Set();
             this.classList = { add: x => classes.add(x), remove: x => classes.delete(x), contains: x => classes.has(x), toggle: (x, on) => on ? classes.add(x) : classes.delete(x) };
         }
+        get nodeType() { return 1; }
+        matches(selector) { return selector.split(',').some(part => part.trim() === '#' + this.id); }
+        querySelectorAll(selector) { const result = []; const visit = root => { for (const child of root.children) { if (child.matches(selector)) result.push(child); visit(child); } }; visit(this); return result; }
         get isConnected() { return this === body || !!this.parentNode?.isConnected; }
-        appendChild(el) { el.remove(); this.children.push(el); el.parentNode = this; return el; }
-        prepend(el) { el.remove(); this.children.unshift(el); el.parentNode = this; }
-        remove() { if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(x => x !== this); this.parentNode = null; }
+        appendChild(el) { el.remove(); this.children.push(el); el.parentNode = this; notifyChildList(this, [el], []); return el; }
+        prepend(el) { el.remove(); this.children.unshift(el); el.parentNode = this; notifyChildList(this, [el], []); }
+        remove() { const parent = this.parentNode; if (parent) parent.children = parent.children.filter(x => x !== this); this.parentNode = null; if (parent) notifyChildList(parent, [], [this]); }
         contains(el) { return this.children.some(x => x === el || x.contains(el)); }
         addEventListener(name, fn) { this.events[name] = fn; }
         removeEventListener(name) { delete this.events[name]; }
         setAttribute(name, value) { this.attrs[name] = value; }
         setAttributeNS(ns, name, value) { this.setAttribute(name, value); }
         hasAttribute(name) { return name in this.attrs; }
-        querySelector(selector) { return find(this, el => selector[0] === '#' ? el.id === selector.slice(1) : selector[0] === '.' ? el.classList.contains(selector.slice(1)) : el.tagName.toLowerCase() === selector); }
+        querySelector(selector) { if (selector.includes(',')) return this.querySelectorAll(selector)[0] || null; return find(this, el => selector[0] === '#' ? el.id === selector.slice(1) : selector[0] === '.' ? el.classList.contains(selector.slice(1)) : el.tagName.toLowerCase() === selector); }
+    }
+    function notifyChildList(target, addedNodes, removedNodes) {
+        for (const observer of observers) {
+            if (!observer.options?.childList || !observer.target || !(observer.target === target || (observer.options.subtree && observer.target.contains(target)))) continue;
+            observer.records.push({ type: 'childList', target, addedNodes, removedNodes });
+            if (observer.delivery == null) observer.delivery = schedule(() => {
+                observer.delivery = null;
+                const records = observer.records.splice(0);
+                if (records.length && observer.target) observer.fn(records);
+            }, 0);
+        }
     }
     function find(root, predicate) { for (const child of root.children) { if (predicate(child)) return child; const found = find(child, predicate); if (found) return found; } return null; }
     const body = new Element('body', 'BODY'), watch = new Element('', 'YTD-WATCH-FLEXY');
@@ -41,7 +55,7 @@ function setup({ width = 1200, saved = false, enabled = true, route = '/watch?v=
     const values = { isFullscreenCommentsEnabled: enabled, isGridEnabled: true, commentWindowState: saved };
     const writes = [];
     const chrome = { i18n: { getMessage: () => '' }, storage: { sync: { get: (keys, cb) => { const snapshot = Object.fromEntries(keys.map(k => [k, values[k]])); schedule(() => cb(snapshot), storageDelay); }, set: value => { writes.push(value); Object.assign(values, value); } }, onChanged: { addListener: fn => storageListeners.push(fn) } }, runtime: { onMessage: { addListener: () => {} } } };
-    const context = vm.createContext({ document, window, chrome, console, URL, setTimeout: (fn, delay) => schedule(fn, delay), clearTimeout: id => timers.delete(id), setInterval: (fn, delay) => schedule(fn, delay, true), clearInterval: id => timers.delete(id), MutationObserver: class { constructor(fn) { this.fn = fn; this.target = null; observers.push(this); } observe(target) { this.target = target; } disconnect() { this.target = null; } } });
+    const context = vm.createContext({ document, window, chrome, console, URL, setTimeout: (fn, delay) => schedule(fn, delay), clearTimeout: id => timers.delete(id), setInterval: (fn, delay) => schedule(fn, delay, true), clearInterval: id => timers.delete(id), MutationObserver: class { constructor(fn) { this.fn = fn; this.target = null; this.records = []; this.delivery = null; observers.push(this); } observe(target, options) { this.target = target; this.options = options; } disconnect() { this.target = null; this.records = []; timers.delete(this.delivery); this.delivery = null; } } });
     vm.runInContext(source, context);
     function tick(ms) {
         const end = now + ms; let count = 0;
@@ -57,9 +71,9 @@ function setup({ width = 1200, saved = false, enabled = true, route = '/watch?v=
     }
     const fire = name => (events[name] || []).forEach(fn => fn());
     const change = (changes, namespace = 'sync') => storageListeners.forEach(fn => fn(changes, namespace));
-    const fullscreen = on => { if (on) watch.attrs.fullscreen = ''; else delete watch.attrs.fullscreen; for (const observer of observers) if (observer.target === watch) observer.fn([{ attributeName: 'fullscreen', target: watch }]); };
+    const fullscreen = on => { if (on) watch.attrs.fullscreen = ''; else delete watch.attrs.fullscreen; for (const observer of observers) if (observer.target === watch && observer.options.attributes) observer.fn([{ attributeName: 'fullscreen', target: watch }]); };
     const key = (extra = {}) => (events.keydown || []).forEach(fn => fn({ key: 'b', preventDefault() {}, ...extra }));
-    return { tick, fire, change, fullscreen, key, body, watch, comments, player, below, secondary, video, controls, values, writes, timers, document, window,
+    return { tick, fire, change, fullscreen, key, body, watch, comments, related, player, below, secondary, video, controls, values, writes, timers, document, window,
         available: value => { watchAvailable = value; },
         open: () => comments.classList.contains('byui-fullscreen-comment'),
         button: () => document.getElementById('byui-comment-button'),
@@ -172,4 +186,45 @@ test('fullscreen watch-to-watch navigation restores the preference without dupli
 test('older player control container can host the comment button', () => {
     const h = setup(); h.controls.classList.remove('ytp-right-controls-left'); h.controls.classList.add('ytp-right-controls');
     h.tick(0); h.fullscreen(true); assert.ok(h.button());
+});
+
+
+test('related videos moved back by YouTube are returned below after initialization', () => {
+    const h = setup(); h.tick(11000); h.secondary.appendChild(h.related); h.tick(100);
+    assert.equal(h.related.parentNode, h.below);
+    assert.equal(h.comments.parentNode, h.secondary);
+    h.tick(1000); assert.equal(h.timers.size, 0);
+});
+test('replacement related renderer is positioned even when old empty related remains', () => {
+    const h = setup(); h.tick(11000);
+    const replacement = h.document.createElement('div'); replacement.id = 'related';
+    h.secondary.appendChild(replacement); h.tick(100);
+    assert.equal(replacement.parentNode, h.below);
+});
+test('related renderer arriving after polling deadline is moved below', () => {
+    const h = setup(); h.related.remove(); h.tick(11000);
+    const wrapper = h.document.createElement('div'); wrapper.appendChild(h.related);
+    h.secondary.appendChild(wrapper); h.tick(100);
+    assert.equal(h.related.parentNode, h.below);
+});
+test('replacement below container receives related videos', () => {
+    const h = setup(); h.tick(0); h.below.remove(); h.secondary.appendChild(h.related);
+    const replacement = h.document.createElement('div'); replacement.id = 'below';
+    h.watch.appendChild(replacement); h.tick(100);
+    assert.equal(h.related.parentNode, replacement);
+});
+test('related repair leaves fullscreen comments inside player', () => {
+    const h = setup(); h.tick(0); h.fullscreen(true); h.key();
+    h.secondary.appendChild(h.related); h.tick(100);
+    assert.equal(h.related.parentNode, h.below); assert.equal(h.comments.parentNode, h.player);
+});
+test('navigation cancels pending layout repair and reconnects on return', () => {
+    const h = setup(); h.tick(0); h.secondary.appendChild(h.related); h.tick(0);
+    h.fire('yt-navigate-start'); h.tick(100);
+    assert.equal(h.related.parentNode, h.secondary); assert.equal(h.timers.size, 0);
+    h.fire('yt-navigate-finish'); h.tick(100); assert.equal(h.related.parentNode, h.below);
+});
+test('unrelated comment content changes do not schedule layout repair', () => {
+    const h = setup(); h.tick(100); h.comments.appendChild(h.document.createElement('span')); h.tick(0);
+    assert.equal(h.timers.size, 0);
 });
